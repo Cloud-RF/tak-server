@@ -34,6 +34,7 @@ At the end of the setup user will be given the information how to access the web
 * There are checks incorporated to this script which make sure that certain services are running inside the docker container once its started so further step can be performed.
 
 **Setup Time**
+
 The setup might take some time and it will depend on the hardware user is using.
 
 

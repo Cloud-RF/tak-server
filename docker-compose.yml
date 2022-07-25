@@ -1,0 +1,41 @@
+version: "3.3"
+   
+services:
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/amd64/Dockerfile.takserver-db
+    volumes:
+      - "db_data:/var/lib/postgresql/data:z"
+      - "./tak:/opt/tak:z"
+    networks:
+      tak:
+        aliases:
+          - tak-database
+    ports:
+      - 5432:5432 
+  tak:
+    build:
+      context: .
+      dockerfile: ./docker/amd64/Dockerfile.takserver
+    env_file:
+      - .env
+    volumes:
+      - "./tak:/opt/tak:z"
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "8444:8444"
+      - "8446:8446"
+      - "8087:8087"
+      - "8088:8088"
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      tak:
+    depends_on:
+      - db
+volumes:
+  db_data:
+networks:
+  tak:

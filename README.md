@@ -54,6 +54,12 @@ The setup might take some time and it will depend on the hardware user is using.
 
 The script for arm64 architecture follows the same steps as in the case of amd64 architecture, therefore for more details please refer to above
 
+### Clean up
+```
+./scripts/cleanup.sh
+```
+
+This script will stop the TAK Server container, remove the mapped volumes, and remove the folder "tak" which normally is created in project root directory (cloned directory from git) during setup process. 
 
 ## Contributing
 *Are we mentioning the first guy?*

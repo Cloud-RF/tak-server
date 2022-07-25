@@ -1,7 +1,8 @@
 #!/bin/bash
 
-
-printf "\n Please make sure that you have downloaded the official docker image as zip file from https://tak.gov/products/tak-server \nPlace the downloaded file to the folder where this git repository is located on your computer.\n"
+printf "\nTAK server setup script"
+printf "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
+printf "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted."
 
 ### Check if required ports are in use by anything other than docker
 netstat_check () {
@@ -25,11 +26,14 @@ netstat_check () {
 			then
 				sudo kill -15 $prockill
 			else
-				printf "The installation will not suceed, please repeat the process once the port $i is not in use. Exiting now..\n"
+				printf "Please repeat the process once the port $i is not in use. Exiting now..\n"
 				sleep 1
 				exit 0
 			fi
+		else
+			printf "\nPort $i is available.."
 		fi
+		sleep 0.1
 	done
 	
 }
@@ -56,55 +60,55 @@ tak_folder () {
 
 
 checksum () {
-	printf "Checking if the release file is present in the directory....\n"
+	printf "\nChecking for TAK server release files (..RELEASE.zip) in the directory....\n"
 	sleep 1
 
 	if [ "$(ls -hl *-RELEASE-*.zip 2>/dev/null)" ];
 	then
-		printf "Calculating checksum, make sure that this is the same as the published checksums for particular release:\n"
+		printf "SECURITY WARNING: Make sure the checksums match! You should only download your release from a trusted source eg. tak.gov:\n"
 		for file in *.zip;
 		do
-			printf "SHA1 Checksum: "
+			printf "Computed SHA1 Checksum: "
 			sha1sum $file
-			printf "MD5 Checksum: "
+			printf "Computed MD5 Checksum: "
 			md5sum $file
 		done
-		printf "\nVerifying checksums...\n"
+		printf "\nVerifying checksums against known values for $file...\n"
 		sleep 1
-		printf "SHA1 Veryfication: "
+		printf "SHA1 Verification: "
 		sha1sum -c tak-sha1checksum.txt
 		if [ $? -ne 0 ];
 		then
-			printf "The checksum is not correct, the file has been modified, do you want to continue with this setup? (y/n): "
+			printf "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
 			read check
 			if [ "$check" == "n" ];
 			then
-				printf "\nExitting now..."
+				printf "\nExiting now..."
 				exit 0
 			elif [ "$check" == "no" ];
 			then
-				printf "Exitting now..."
+				printf "Exiting now..."
 				exit 0
 			fi
 		fi
-		printf "MD5 Veryfication: "
+		printf "MD5 Verification: "
 		md5sum -c tak-md5checksum.txt
 		if [ $? -ne 0 ];
 		then
-			printf "The checksum is not correct, the file has been modified, do you want to continue with this setup? (y/n): "
+			printf "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
 			read check
 			if [ "$check" == "n" ];
 			then
-				printf "\nExitting now..."
+				printf "\nExiting now..."
 				exit 0
 			elif [ "$check" == "no" ];
 			then
-				printf "Exitting now..."
+				printf "Exiting now..."
 				exit 0
 			fi
 		fi
 	else
-		printf "\n\tPlease download the release of docker image as per instructions in READ.me file. Exitting now...\n\n"
+		printf "\n\tPlease download the release of docker image as per instructions in README.md file. Exiting now...\n\n"
 		sleep 1
 		exit 0
 	fi
@@ -118,10 +122,10 @@ checksum
 
 ### Vars
 
-ls -hl *.zip | awk '{print $9}' | cut -d. -f -2
+release=`ls -hl *.zip | awk '{print $9}' | cut -d. -f -2`
 
-printf "\nPlease type the release version (that is a full name of the file before the .zip extension): "
-read release
+printf "\nPausing to let you know release version $release will be setup in 5 seconds. If this is wrong, hit Ctrl-C now..."
+sleep 5
 
 
 ## Set up directory structure

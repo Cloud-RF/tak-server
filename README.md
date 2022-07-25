@@ -1,54 +1,74 @@
-# Tak Server in Docker
+# TAK server
 
-Clone the repository to the destination of your choice.
+## About
+![alt text](img/tak.jpg "TAK logo")
 
-## Available Architectures
-* amd64
-* arm64
+This is a docker wrapper for an official 'OG' TAK server from Tak Product Center. It will give you a turnkey TAK server with SSL.
+
+
+## Download a TAK release
+Before you can build this, you must download a TAKSERVER-DOCKER-X.X-RELEASE 
+
+Releases are now public at https://tak.gov/products/tak-server
+Please follow account registration process, and once completed go to the link above. 
+
+![alt text](img/tak-server-download.jpg "TAK release download")
+
 
 ## Requirements
-The set up calls for release file which is zipped. 
+- Docker
+- A TAK server release
+- 4GB memory
+- Network connection 
 
-The release file can be downloaded from https://tak.gov/products/tak-server.
-In order to download the latest and some previous releases the account is needed. Please follow account registration process, and once completed go to the link above.
-From the releases make sure that the DOCKER release is downloaded to the CLONED project directory.
+## Installation
+Fetch the git repo and cd into the directory
 
-## Quickstart 
-**These scripts assume you don't need to sudo for `docker` and `docker-compose`.**
+    git clone https://github.com/Cloud-RF/tak-server.git
+    cd tak-server
+
+### Docker security
+
+These scripts assume you don't need to sudo for `docker` and `docker-compose`.
 Run as root if needed, however please have in mind that the container might be set up as _privileged container_, and for security reasons we do not recommend that.
 See https://docs.docker.com/engine/install/linux-postinstall/ for details.
 
-### AMD64
+You can also chown the docker.sock file which isn't as recommended, but works.
+
+    sudo chown $USER /var/run/docker.sock
+
+### AMD64 setup
+
 ```
+cd tak-server
+chmod +x scripts/setup.sh
 ./scripts/setup.sh
 ```
-**This script is for amd64 architecture.**
 
-The setup.sh script will go through healthchecks and steps neccessary to set up the TAK Server container. There will be prompts and some inputs required from user, although we did try to minimize that.
+The setup.sh script will ppopulate config files, start up TAK server with a POSTGRES database via docker-compose, and generate the required certificates.There will be prompts and some inputs required from user such as certificate names.
 At the end of the setup user will be given the information how to access the web interface where further settings can be applied.
 
-### Details
+### TCP/IP ports
+TAK server needs the following port numbers to operate. Services already using these will cause a problem which the script will detect and offer a resolution for.
 
-This project seeks to streamline the instructions in TAK server's offical docs to build and configure TAK server using Docker.
+    8443, 8444, 8446, 8087, 8088, 9000, 9001, 8080
 
-The setup script will populate config files, start up TAK server and the POSTGRES database via docker-compose, and generate the required certificates.
+## Passwords
+The Java setup **can take several minutes**. Please be patient. When it's done you will be shown random passwords which you need to login. You can change these later from the admin interface.
 
-To prevent TAK Server configuration fail we have implemented various health checks which should ensure successfull setup. The list of checks performed below:
+![alt text](img/takserverpasswords.jpg "TAK server passwords")
 
-**Health checks**
-* Checking if ports 8443, 8444, 8446, 8087, 8088, 9000, 9001, 8080 are free,
-* Checking if the tak directory in the project root directory (cloned directory from git) already exists, if so informs user about the fact that it will get overriden and gives a choice of action,
-* Checking if release file is present in the root directory (cloned directory from git) of the project,
-* The script will calculate a checksum for the release file and then verify the checksum against the correct checksums provided. Will inform user if the checksum failed and ask for the action to perform.
-* There are checks incorporated to this script which make sure that certain services are running inside the docker container once its started so further step can be performed.
+## Login
+Use your admin login to access the interface in a web browser at:
 
-**Setup Time**
+    http://localhost:8080
 
-The setup might take some time and it will depend on the hardware user is using.
+If it hangs, reload the page after a minute and expect a big scary legal warning about US Gov export controls on a piece of open source software. Be confused for a second and then click ok...
 
-
-### ARM64 (32-bit isn't supported)
+### ARM64 setup
 ```
+cd tak-server
+chmod +x scripts/setup.sh
 ./scripts/setup-arm.sh
 ```
 
@@ -62,7 +82,13 @@ The script for arm64 architecture follows the same steps as in the case of amd64
 This script will stop the TAK Server container, remove the mapped volumes, and remove the folder "tak" which normally is created in project root directory (cloned directory from git) during setup process. 
 
 ## Contributing
-*Are we mentioning the first guy?*
+Please feel free to open merge requests. A beginner's guide to github.com is here:
+
+ https://www.freecodecamp.org/news/how-to-make-your-first-pull-request-on-github-3/
 
 ## Authors and acknowledgment
-Thanks to the TAK server team for creation and open-sourcing the core project!
+Thanks to the TAK product center for open-sourcing and maintaining all things TAK. 
+
+Thanks to James Wu 'wubar' on gitlab/Discord for publishing the docker wrapper on which this was built.
+
+Thanks to protectionist dinosaurs, on both sides of the pond, who are threatened by TAK's open source model for the motivation :p

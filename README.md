@@ -7,8 +7,10 @@ Clone the repository to the destination of your choice.
 * arm64
 
 ## Requirements
-The set up calls for release file which is zipped. The release file can be downloaded from https://tak.gov/products/tak-server.
-In order to download the latest and some previous releases the account is needed. Follow account registration process. Once completed go to the link above.
+The set up calls for release file which is zipped. 
+
+The release file can be downloaded from https://tak.gov/products/tak-server.
+In order to download the latest and some previous releases the account is needed. Please follow account registration process, and once completed go to the link above.
 From the releases make sure that the DOCKER release is downloaded to the CLONED project directory.
 
 ## Quickstart 

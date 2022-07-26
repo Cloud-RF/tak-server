@@ -80,7 +80,7 @@ If it hangs, reload the page after a minute and expect a big scary legal warning
 
 ```
 cd tak-server
-chmod +x scripts/setup.sh
+chmod +x scripts/setup-arm.sh
 ./scripts/setup-arm.sh
 ```
 

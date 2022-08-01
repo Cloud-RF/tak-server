@@ -2,8 +2,18 @@
 
 ![meh](img/tak.jpg "TAK logo")
 
-This is a docker wrapper for an official 'OG' TAK server from [TAK Product Center](https://tak.gov/). It will give you a turnkey TAK server with SSL which works with ATAK, iTAK, WinTAK etc
+This is a docker wrapper for an official 'OG' TAK server from [TAK Product Center](https://tak.gov/) intended for beginners. It will give you a turnkey TAK server with SSL which works with ATAK, iTAK, WinTAK.
 
+The key improvements are:
+ - Automatic configuration 
+ - Certificate generation
+ - Secure password generation
+ - Updates postgres10 to postgres14
+ - Updates debian 8 to debian 11
+
+ ## Known issues
+ ### The login screen doesn't take my password?
+ Just wait a minute....or two. Apparently this is normal!
 
 ## Download the official TAK release
 Before you can build this, you must download a TAKSERVER-DOCKER-X.X-RELEASE 

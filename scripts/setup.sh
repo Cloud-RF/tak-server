@@ -2,7 +2,7 @@
 
 printf "\nTAK server setup script"
 printf "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
-printf "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted."
+printf "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted.\n"
 
 ### Check if required ports are in use by anything other than docker
 netstat_check () {
@@ -42,19 +42,20 @@ tak_folder () {
 	### Check if the folder "tak" exists after previous install or attempt and remove it or leave it for the user to decide
 	if [ -d "./tak" ] 
 	then
-	    printf "Directory 'tak' already exists. This will be overwritten, do you want to continue? (y/n): "
+	    printf "\nDirectory 'tak' already exists. This will be removed, do you want to continue? (y/n): "
 	    read dirc
 	    if [ $dirc == "n" ];
 	    then
-	    	printf "Exitting now.."
+	    	printf "Exiting now.."
 	    	sleep 1
 	    	exit 0
 	    elif [ $dirc == "no" ];
 	    then
-	    	printf "Exitting now.."
+	    	printf "Exiting now.."
 	    	sleep 1
 	    	exit 0
 	   	fi
+		rm -rf tak
 	fi 
 }
 
@@ -124,7 +125,7 @@ checksum
 
 release=`ls -hl *.zip | awk '{print $9}' | cut -d. -f -2`
 
-printf "\nPausing to let you know release version $release will be setup in 5 seconds. If this is wrong, hit Ctrl-C now..."
+printf "\nPausing to let you know release version $release will be setup in 5 seconds.\nIf this is wrong, hit Ctrl-C now..."
 sleep 5
 
 
@@ -147,23 +148,23 @@ pgpassword=$pgpwd"!"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
 
 ## Set variables for generating CA and client certs
-read -p "State (for cert generation). Default [$user] :" state
-read -p "City (for cert generation). Default [$user]:" city
-read -p "Organizational Unit (for cert generation). Default [$user]:" orgunit
+read -p "State (for cert generation). Default [state] :" state
+read -p "City (for cert generation). Default [city]:" city
+read -p "Organizational Unit (for cert generation). Default [org]:" orgunit
 
 if [ -z "$state" ];
 then
-	state="admin"
+	state="state"
 fi
 
 if [ -z "$city" ];
 then
-	city="admin"
+	city="city"
 fi
 
 if [ -z "$orgunit" ];
 then
-	orgunit="admin"
+	orgunit="org"
 fi
 
 # Writes variables to a .env file for docker-compose
@@ -176,7 +177,7 @@ EOF
 ### Runs through setup
 
 printf "waiting for TAK server to go live"
-docker-compose up -d
+docker-compose up -d --force-recreate
 
 ### Checking if the container is set up and ready to set the certificates
 

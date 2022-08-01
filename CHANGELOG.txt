@@ -1,0 +1,8 @@
+01/08/2022
+
+Fixed database connection configuration bug 
+Replaced a postgres10 path referenced in a post-install script
+Deleting existing tak folder if exists and authorised
+Forcing recreate of containers to step over tedious docker network issues
+Improved readme 
+

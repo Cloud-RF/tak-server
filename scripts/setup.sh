@@ -136,6 +136,7 @@ clear
 
 cp ./configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
 cp ./postgresql1.conf ./tak/postgresql.conf
+cp ./takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
 
 ## Set admin username and password
 user="admin"

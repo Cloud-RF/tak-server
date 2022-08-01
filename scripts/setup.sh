@@ -4,6 +4,17 @@ printf "\nTAK server setup script"
 printf "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
 printf "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted.\n"
 
+arch=$(dpkg --print-architecture)
+
+DOCKERFILE=docker-compose.yml
+
+if [ $arch == "arm64" ];
+then
+	DOCKERFILE=docker-compose.arm.yml
+	printf "\nBuilding for arm64...\n"
+fi
+
+
 ### Check if required ports are in use by anything other than docker
 netstat_check () {
 	
@@ -178,7 +189,7 @@ EOF
 ### Runs through setup
 
 printf "waiting for TAK server to go live"
-docker-compose up -d --force-recreate
+docker-compose --file $DOCKERFILE up -d --force-recreate
 
 ### Checking if the container is set up and ready to set the certificates
 

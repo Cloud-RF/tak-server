@@ -133,6 +133,9 @@ unzip $release.zip -d /tmp/takserver
 mv -f /tmp/takserver/$release/tak .
 clear
 
+cp ./configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
+cp ./postgresql1.conf ./tak/postgresql.conf
+
 ## Set admin username and password
 user="admin"
 pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-16} | head -n 1)

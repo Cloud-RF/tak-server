@@ -14,7 +14,6 @@ then
 	printf "\nBuilding for arm64...\n"
 fi
 
-exit
 
 ### Check if required ports are in use by anything other than docker
 netstat_check () {

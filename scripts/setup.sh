@@ -252,6 +252,11 @@ do
 	fi
 done
 
+### Unsetting the environmental variables for random passwords
+
+unset pwd
+unset pgpwd
+
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
 
 printf "If everything ran successfully, you should be able to hit the http address at http://localhost:8080 and configure TAK server the rest of the way."
@@ -259,9 +264,4 @@ printf "You should probably remove the port 8080:8080 mapping in docker-compose.
 printf "Admin user certs should be under ./tak/certs/files \n"
 printf "Your admin user name is: $user\n" # Web interface default user name
 printf "Your admin password is: $password\n" # Web interface default random password created during setup
-printf "Your Postgresql password is: $pgpassword\n" # PostgreSQL password randomly generated during setup
-
-### Unsetting the environmental variables for random passwords
-
-unset pwd
-unset pgpwd
+printf "Your Postgresql password is: $pgpassword\n" # PostgreSQL password randomly generated during set up

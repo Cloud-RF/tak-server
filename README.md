@@ -55,7 +55,8 @@ You can also chown the docker.sock file which isn't as recommended, but works.
 
     sudo chown $USER /var/run/docker.sock
 
-### AMD64 setup
+### x86, AMD64 & ARM64 (Pi4) setup 
+The script will auto-detect your architecture and use the arm docker file if arch == arm64
 
 ```
 cd tak-server
@@ -86,15 +87,6 @@ Use your new admin login to access the interface in a web browser at:
 
 If it hangs, reload the page after a minute and expect a big scary legal warning about US Gov export controls on a piece of open source software. Be confused for a second and then click ok...
 
-### ARM64 setup (Pi4)
-
-```
-cd tak-server
-chmod +x scripts/setup.sh
-./scripts/setup-arm.sh
-```
-
-The script for arm64 architecture follows the same steps as in the case of amd64 architecture.
 
 ### Logging
 You can access a shell in the running docker container with this command:

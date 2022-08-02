@@ -1,7 +1,11 @@
 #!/bin/bash
 
-echo "alias docker-compose='docker compose'" >> ~/.bashrc
-source ~/.bashrc
+docker compose 2> /dev/null
+if [ $? -eq 0 ];
+then
+	echo "alias docker-compose='docker compose'" >> ~/.bashrc
+	source ~/.bashrc
+fi
 
 printf "\nTAK server setup script"
 printf "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"

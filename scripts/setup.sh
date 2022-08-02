@@ -1,8 +1,22 @@
 #!/bin/bash
 
+echo "alias docker-compose='docker compose'" >> ~/.bashrc
+source ~/.bashrc
+
 printf "\nTAK server setup script"
 printf "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
 printf "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted.\n"
+
+arch=$(dpkg --print-architecture)
+
+DOCKERFILE=docker-compose.yml
+
+if [ $arch == "arm64" ];
+then
+	DOCKERFILE=docker-compose.arm.yml
+	printf "\nBuilding for arm64...\n"
+fi
+
 
 ### Check if required ports are in use by anything other than docker
 netstat_check () {
@@ -178,7 +192,7 @@ EOF
 ### Runs through setup
 
 printf "waiting for TAK server to go live"
-docker-compose up -d --force-recreate
+docker-compose --file $DOCKERFILE up -d --force-recreate
 
 ### Checking if the container is set up and ready to set the certificates
 
@@ -213,28 +227,30 @@ docker-compose start tak
 
 while :
 do
-	docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
-	
-	if [ $? -eq 0 ]; 
+	docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
+
+	if [ $? -eq 0 ];
 	then
-		docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
+		docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 		
-		if [ $? -eq 0 ];
+		if [ $? -eq 0 ]; 
 		then
-			break
+			docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
+			
+			if [ $? -eq 0 ];
+			then
+
+				break
+			else
+				sleep 10
+			fi
 		else
 			sleep 10
 		fi
-	
 	else
 		sleep 10
 	fi
 done
-
-### Unsetting the environmental variables for random passwords
-
-unset pwd
-unset pgpwd
 
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
 
@@ -243,4 +259,9 @@ printf "You should probably remove the port 8080:8080 mapping in docker-compose.
 printf "Admin user certs should be under ./tak/certs/files \n"
 printf "Your admin user name is: $user\n" # Web interface default user name
 printf "Your admin password is: $password\n" # Web interface default random password created during setup
-printf "Your Postgresql password is: $pgpassword\n" # PostgreSQL password randomly generated during set up
+printf "Your Postgresql password is: $pgpassword\n" # PostgreSQL password randomly generated during setup
+
+### Unsetting the environmental variables for random passwords
+
+unset pwd
+unset pgpwd

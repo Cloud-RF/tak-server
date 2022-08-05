@@ -1,5 +1,12 @@
 #!/bin/bash
 
+docker compose 2> /dev/null
+if [ $? -eq 0 ];
+then
+	echo "alias docker-compose='docker compose'" >> ~/.bashrc
+	source ~/.bashrc
+fi
+
 printf "\nTAK server setup script"
 printf "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
 printf "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted.\n"
@@ -147,14 +154,15 @@ clear
 
 cp ./configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
 cp ./postgresql1.conf ./tak/postgresql.conf
+cp ./takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
 
 ## Set admin username and password
 user="admin"
-pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-16} | head -n 1)
+pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-17} | head -n 1)
 password=$pwd"!"
 
 ## Set postgres password
-export pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-16} | head -n 1)"
+export pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-17} | head -n 1)"
 pgpassword=$pgpwd"!"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
 
@@ -223,19 +231,26 @@ docker-compose start tak
 
 while :
 do
+	# docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
 	docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
-	
-	if [ $? -eq 0 ]; 
+	if [ $? -eq 0 ];
 	then
+		# docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 		docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
-		
-		if [ $? -eq 0 ];
+		if [ $? -eq 0 ]; 
 		then
-			break
+			# docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
+			docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
+			if [ $? -eq 0 ];
+			then
+
+				break
+			else
+				sleep 10
+			fi
 		else
 			sleep 10
 		fi
-	
 	else
 		sleep 10
 	fi

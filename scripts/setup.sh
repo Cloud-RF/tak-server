@@ -73,7 +73,7 @@ tak_folder () {
 	    	sleep 1
 	    	exit 0
 	   	fi
-		rm -rf tak
+		sudo rm -rf tak
 	fi 
 }
 
@@ -141,7 +141,7 @@ checksum
 
 ### Vars
 
-release=`ls -hl *.zip | awk '{print $9}' | cut -d. -f -2`
+release=$(ls -hl *.zip | awk '{print $9}' | cut -d. -f -2)
 
 printf "\nPausing to let you know release version $release will be setup in 5 seconds.\nIf this is wrong, hit Ctrl-C now..."
 sleep 5
@@ -149,7 +149,7 @@ sleep 5
 
 ## Set up directory structure
 unzip $release.zip -d /tmp/takserver
-mv -f /tmp/takserver/$release/tak .
+sudo mv -f /tmp/takserver/$release/tak ./
 clear
 
 cp ./configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
@@ -162,7 +162,7 @@ pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-17} | head -
 password=$pwd"!"
 
 ## Set postgres password
-export pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-17} | head -n 1)"
+pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-17} | head -n 1)"
 pgpassword=$pgpwd"!"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
 
@@ -224,7 +224,7 @@ do
 	fi
 done
 
-printf "waiting for TAK server to go live again (this may take longer on slower machines)"
+printf "waiting for TAK server to go live again (this may take longer on slower machines)\n"
 docker-compose start tak
 
 ### Checks if java is fully initialised
@@ -255,11 +255,6 @@ do
 		sleep 10
 	fi
 done
-
-### Unsetting the environmental variables for random passwords
-
-unset pwd
-unset pgpwd
 
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
 

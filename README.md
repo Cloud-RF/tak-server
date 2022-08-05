@@ -97,6 +97,23 @@ To tail the server log from inside the container:
 
     tail -f /opt/tak/logs/takserver.log
 
+### Changing the logo at the footer of the web page
+
+The logo can be changed **without** stopping or setting up the TAK Server again.
+
+This option has been added as stand alone script __*"logo-replacement.sh"*__ which is located in main folder.
+
+The script takes one command line argument which is the full path to the **PNG** or **JPG** image of new logo. Before executing please make sure the script is executable as in an example below:
+
+```bash
+chmod +x logo-replacement.sh
+
+./logo-replacement.sh <full path to new logo image>
+````
+
+The script will check for all dependencies required, and if not present, the script will attempt to install them for you. The dependencies needed are __*openJDK*__ (JAVA environment is required to be able to use the *jar* command) and __*ImageMagick*__
+
+Once dependencies are satisfied, the process of changing the logo takes place. The new logo size is 200x100 pixels. However, the size is not required for successful change, so feel free to change these numbers in the script to your preferences.
 
 ### Clean up
 ```

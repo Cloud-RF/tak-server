@@ -1,3 +1,6 @@
 .env
+*.war
 takserver-*.zip
 tak/
+investigation/
+originalWAR/

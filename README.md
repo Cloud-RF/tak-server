@@ -16,7 +16,9 @@ The key improvements are:
  Just wait a minute....or two. Apparently this is normal!
 
 ## Download the official TAK release
-Before you can build this, you must download a TAKSERVER-DOCKER-X.X-RELEASE 
+Before you can build this, you must download a **TAKSERVER-DOCKER-X.X-RELEASE** 
+
+The scripts in this repository **have not** been checked against *TAKSERVER-DOCKER-HARDENED-X.X-RELEASE*, so please **do not** use them with that version of TAK Server.
 
 Releases are now public at https://tak.gov/products/tak-server
 

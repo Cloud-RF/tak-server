@@ -30,6 +30,7 @@ The integrity of the release will be checked at setup against the MD5/SHA1 check
 | Release filename                             | Bytes | MD5 | SHA1 |
 | ----------------------------------- | -- | -- | -- |
 | takserver-docker-4.6-RELEASE-26.zip |  462381384 | dc63cb315f950025707dbccf05bdf183 | 7ca58221b8d35d40df906144c5834e6d9fa85b47 |
+| takserver-docker-4.7-RELEASE-4.zip | 759385093 | 5b011b74dd5f598fa21ce8d737e8b3e6 | b688359659a05204202c21458132a64ec1ba0184 |
 
 
 

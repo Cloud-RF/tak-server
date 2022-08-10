@@ -11,12 +11,10 @@ The key improvements are:
  - Updates postgres10 to postgres14
  - Updates debian 8 to debian 11
 
- ## Known issues
- ### The login screen doesn't take my password?
- Just wait a minute....or two. Apparently this is normal!
+## IMPORTANT: Download the official TAK release
+Before you can build this, you must download a **TAKSERVER-DOCKER-X.X-RELEASE** 
 
-## Download the official TAK release
-Before you can build this, you must download a TAKSERVER-DOCKER-X.X-RELEASE 
+The scripts in this repository **have not** been checked against *TAKSERVER-DOCKER-HARDENED-X.X-RELEASE*, so please **do not** use them with that version of TAK Server.
 
 Releases are now public at https://tak.gov/products/tak-server
 
@@ -30,6 +28,7 @@ The integrity of the release will be checked at setup against the MD5/SHA1 check
 | Release filename                             | Bytes | MD5 | SHA1 |
 | ----------------------------------- | -- | -- | -- |
 | takserver-docker-4.6-RELEASE-26.zip |  462381384 | dc63cb315f950025707dbccf05bdf183 | 7ca58221b8d35d40df906144c5834e6d9fa85b47 |
+| takserver-docker-4.7-RELEASE-4.zip | 759385093 | 5b011b74dd5f598fa21ce8d737e8b3e6 | b688359659a05204202c21458132a64ec1ba0184 |
 
 
 
@@ -55,7 +54,7 @@ You can also chown the docker.sock file which isn't as recommended, but works.
 
     sudo chown $USER /var/run/docker.sock
 
-### x86, AMD64 & ARM64 (Pi4) setup 
+### AMD64 & ARM64 (Pi4) setup 
 The script will auto-detect your architecture and use the arm docker file if arch == arm64
 
 ```
@@ -71,7 +70,7 @@ For more information on using TAK server refer to [the docs on the TPC Github](h
 ### Network ports
 TAK server needs the following port numbers to operate. Services already using these will cause a problem which the script will detect and offer a resolution for. If you're running as sudo it can kill the processes.
 
-    8443, 8444, 8446, 8087, 8088, 9000, 9001, 8080
+    8443, 8444, 8446, 8087, 8088, 8089, 9000, 9001, 8080
 
 If you are going to expose these ports be careful. Not all of them run secure protocols. For piece of mind, and for working through firewalls and NAT routers run this on a VPN like OpenVPN or NordVPN. 
 
@@ -85,7 +84,8 @@ Use your new admin login to access the interface in a web browser at:
 
     http://localhost:8080
 
-If it hangs, reload the page after a minute and expect a big scary legal warning about US Gov export controls on a piece of open source software. Be confused for a second and then click ok...
+If it fails, try 3 times, wait a minute, try again. A successful login will trigger this security warning:
+
 
 
 ### Logging
@@ -101,26 +101,39 @@ To tail the server log from inside the container:
 
 The logo can be changed **without** stopping or setting up the TAK Server again.
 
-This option has been added as stand alone script __*"logo-replacement.sh"*__ which is located in main folder.
+![meh](img/banana.png "A banana")
 
-The script takes one command line argument which is the full path to the **PNG** or **JPG** image of new logo. Before executing please make sure the script is executable as in an example below:
+The script takes one command line argument which is the full path to the **PNG** or **JPG** image of new logo. Sudo permission may not be needed depending on your docker permissions.
 
-```bash
-chmod +x logo-replacement.sh
-
-./logo-replacement.sh <full path to new logo image>
+```
+chmod +x scripts/logo-replacement.sh
+sudo ./scripts/logo-replacement.sh /home/eric/banana.jpg
 ````
 
-The script will check for all dependencies required, and if not present, the script will attempt to install them for you. The dependencies needed are __*openJDK*__ (JAVA environment is required to be able to use the *jar* command) and __*ImageMagick*__
-
-Once dependencies are satisfied, the process of changing the logo takes place. The new logo size is 200x100 pixels. However, the size is not required for successful change, so feel free to change these numbers in the script to your preferences.
+The script will check for all dependencies required, and if not present, the script will attempt to install them for you. The dependencies needed are __*openJDK*__ (JAVA environment is required to be able to repack the jar correctly) and ImageMagick for conversion.
 
 ### Clean up
 ```
-./scripts/cleanup.sh
+sudo ./scripts/cleanup.sh
 ```
 
 This script will stop the TAK Server container, remove the mapped volumes and remove the folder "tak" which is created in the project root directory (cloned from github) during the setup process. 
+
+WARNING: If you have data in an existing TAK database container it will be lost.
+
+ ## Known issues
+  ### Loads of repeat java exceptions eg java.lang.RuntimeException...
+One or two is expected behaviour due to the time the backend processes take to start up. If you get lots or it's still ongoing after 2 minutes, run the cleanup script as sudo to prune stale images.
+
+  ### Failed to initialize pool: Connection to tak-database:5432 refused
+This indicates a docker network issue. Run the clean up script as sudo to prune stale networks.
+
+
+ ### The login screen doesn't take my password?
+ Just wait a minute or two. This is expected behaviour due to the time the backend processes take to start up.
+
+## My custom logo doesn't show up
+If the script ran as sudo and completed ok, refresh your browser's cache with Ctrl-F5
 
 ## Contributing
 Please feel free to open merge requests. A beginner's guide to github.com is here:

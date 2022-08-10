@@ -88,14 +88,14 @@ checksum () {
 		for file in *.zip;
 		do
 			printf "Computed SHA1 Checksum: "
-			sha1sum $file
+			sha1sum $file 
 			printf "Computed MD5 Checksum: "
 			md5sum $file
 		done
 		printf "\nVerifying checksums against known values for $file...\n"
 		sleep 1
 		printf "SHA1 Verification: "
-		sha1sum -c tak-sha1checksum.txt
+		sha1sum --ignore-missing -c tak-sha1checksum.txt
 		if [ $? -ne 0 ];
 		then
 			printf "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
@@ -111,7 +111,7 @@ checksum () {
 			fi
 		fi
 		printf "MD5 Verification: "
-		md5sum -c tak-md5checksum.txt
+		md5sum --ignore-missing -c tak-md5checksum.txt
 		if [ $? -ne 0 ];
 		then
 			printf "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
@@ -152,9 +152,9 @@ unzip $release.zip -d /tmp/takserver
 sudo mv -f /tmp/takserver/$release/tak ./
 clear
 
-cp ./configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
+cp ./scripts/configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
 cp ./postgresql1.conf ./tak/postgresql.conf
-cp ./takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
+cp ./scripts/takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
 
 ## Set admin username and password
 user="admin"

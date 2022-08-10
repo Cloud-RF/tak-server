@@ -84,9 +84,9 @@ Use your new admin login to access the interface in a web browser at:
 
     http://localhost:8080
 
-If it fails, try 3 times, wait a minute, try again. A successful login will trigger this security warning:
+If it fails, try 3 times, wait a minute for the backend process to start up, try again. A successful login will trigger an old security warning which you can ignore as this software is now open source.
 
-
+![meh](img/warning.jpg "A warning")
 
 ### Logging
 You can access a shell in the running docker container with this command:
@@ -111,6 +111,10 @@ sudo ./scripts/logo-replacement.sh /home/eric/banana.jpg
 ````
 
 The script will check for all dependencies required, and if not present, the script will attempt to install them for you. The dependencies needed are __*openJDK*__ (JAVA environment is required to be able to repack the jar correctly) and ImageMagick for conversion.
+
+## Administration and support
+
+You can find the PDF manual in the tak/docs folder and get help from *community volunteers* via the TAK Discord server. If you ask a bone FAQ already covered in the manual, or demand urgent assistance, expect to get some grief. **RTFM and be patient**.
 
 ### Clean up
 ```

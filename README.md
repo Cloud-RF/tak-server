@@ -29,6 +29,7 @@ The integrity of the release will be checked at setup against the MD5/SHA1 check
 | ----------------------------------- | -- | -- | -- |
 | takserver-docker-4.6-RELEASE-26.zip |  462381384 | dc63cb315f950025707dbccf05bdf183 | 7ca58221b8d35d40df906144c5834e6d9fa85b47 |
 | takserver-docker-4.7-RELEASE-4.zip | 759385093 | 5b011b74dd5f598fa21ce8d737e8b3e6 | b688359659a05204202c21458132a64ec1ba0184 |
+| takserver-docker-4.7-RELEASE-18.zip | 759410768 | 44b6fa8d7795b56feda08ea7ab793a3e | cd56406d3539030ab9b9b3fbae08b56b352b9b53 |
 
 
 
@@ -133,6 +134,13 @@ This indicates a docker network issue. Run the clean up script as sudo to prune 
 
  ### Running the /setup wizard breaks the database?
  This script **is the wizard** so it gets you past the setup wizard (Section 4.4 in the configuration guide) and populates the database tables. Only run the wizard if you know what you're doing as **this will break your database connection** - at which point you should set this up the hard way.
+
+### ERROR: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network
+Stop your vpn, prune your networks
+```
+service openvpn stop
+docker network prune
+```
 
 ## My custom logo doesn't show up
 If the script ran as sudo and completed ok, refresh your browser's cache with Ctrl-F5

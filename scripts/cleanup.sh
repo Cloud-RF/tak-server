@@ -1,5 +1,5 @@
 #!/bin/bash
 
 docker-compose down
-docker system prune --volumes
+docker volume rm --force tak-server_db_data
 rm -rf tak

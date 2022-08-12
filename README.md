@@ -74,17 +74,13 @@ TAK server needs the following port numbers to operate. Services already using t
 
 If you are going to expose these ports be careful. Not all of them run secure protocols. For piece of mind, and for working through firewalls and NAT routers run this on a VPN like OpenVPN or NordVPN. 
 
-## Passwords
-The openjdk-11 setup **will take several minutes**. Please be patient and ignore any repeat Java exceptions whilst the network components start up and try to find each which is expected behaviour. When it's done you will be shown random passwords which you will need to login. *You can change these later from the admin interface.*
-
-![meh](img/takserverpasswords.jpg "TAK server passwords")
 
 ## Admin login
-Use your new admin login to access the interface in a web browser at:
+Use your new random admin login to access the interface in a web browser at:
 
     http://localhost:8080
 
-If it fails, try 3 times, wait a minute for the backend process to start up, try again. A successful login will trigger an old security warning which you can ignore as this software is now open source.
+A successful login will trigger an old security warning which you can ignore as this software is now open source.
 
 ![meh](img/warning.jpg "A warning")
 
@@ -121,7 +117,7 @@ You can find the PDF manual in the tak/docs folder and get help from *community 
 sudo ./scripts/cleanup.sh
 ```
 
-This script will stop the TAK Server container, remove the mapped volumes and remove the folder "tak" which is created in the project root directory (cloned from github) during the setup process. 
+This script will stop the TAK Server container, remove the mapped database volume and remove the folder "tak" which is created in the project root directory (cloned from github) during the setup process. 
 
 WARNING: If you have data in an existing TAK database container it will be lost.
 
@@ -132,9 +128,11 @@ One or two is expected behaviour due to the time the backend processes take to s
   ### Failed to initialize pool: Connection to tak-database:5432 refused
 This indicates a docker network issue. Run the clean up script as sudo to prune stale networks.
 
-
  ### The login screen doesn't take my password?
  Just wait a minute or two. This is expected behaviour due to the time the backend processes take to start up.
+
+ ### Running the /setup wizard breaks the database?
+ This script **is the wizard** so it gets you past the setup wizard (Section 4.4 in the configuration guide) and populates the database tables. Only run the wizard if you know what you're doing as **this will break your database connection** - at which point you should set this up the hard way.
 
 ## My custom logo doesn't show up
 If the script ran as sudo and completed ok, refresh your browser's cache with Ctrl-F5

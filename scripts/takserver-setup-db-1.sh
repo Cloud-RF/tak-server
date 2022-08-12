@@ -171,12 +171,6 @@ fi
 
 echo "Database $DB_NAME created."
 
-
-java -jar /opt/tak/db-utils/SchemaManager.jar upgrade
-
-
-echo "Database updated with SchemaManager.jar"
-
 if [ ! -x /usr/bin/systemctl ]; then
   echo "Systemctl was not found. Skipping Systemd configuration."
   exit 1

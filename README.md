@@ -11,12 +11,10 @@ The key improvements are:
  - Updates postgres10 to postgres14
  - Updates debian 8 to debian 11
 
- ## Known issues
- ### The login screen doesn't take my password?
- Just wait a minute....or two. Apparently this is normal!
+## IMPORTANT: Download the official TAK release
+Before you can build this, you must download a **TAKSERVER-DOCKER-X.X-RELEASE** 
 
-## Download the official TAK release
-Before you can build this, you must download a TAKSERVER-DOCKER-X.X-RELEASE 
+The scripts in this repository **have not** been checked against *TAKSERVER-DOCKER-HARDENED-X.X-RELEASE*, so please **do not** use them with that version of TAK Server.
 
 Releases are now public at https://tak.gov/products/tak-server
 
@@ -30,6 +28,7 @@ The integrity of the release will be checked at setup against the MD5/SHA1 check
 | Release filename                             | Bytes | MD5 | SHA1 |
 | ----------------------------------- | -- | -- | -- |
 | takserver-docker-4.6-RELEASE-26.zip |  462381384 | dc63cb315f950025707dbccf05bdf183 | 7ca58221b8d35d40df906144c5834e6d9fa85b47 |
+| takserver-docker-4.7-RELEASE-4.zip | 759385093 | 5b011b74dd5f598fa21ce8d737e8b3e6 | b688359659a05204202c21458132a64ec1ba0184 |
 
 
 
@@ -55,7 +54,7 @@ You can also chown the docker.sock file which isn't as recommended, but works.
 
     sudo chown $USER /var/run/docker.sock
 
-### x86, AMD64 & ARM64 (Pi4) setup 
+### AMD64 & ARM64 (Pi4) setup 
 The script will auto-detect your architecture and use the arm docker file if arch == arm64
 
 ```
@@ -71,22 +70,19 @@ For more information on using TAK server refer to [the docs on the TPC Github](h
 ### Network ports
 TAK server needs the following port numbers to operate. Services already using these will cause a problem which the script will detect and offer a resolution for. If you're running as sudo it can kill the processes.
 
-    8443, 8444, 8446, 8087, 8088, 9000, 9001, 8080
+    8443, 8444, 8446, 8087, 8088, 8089, 9000, 9001, 8080
 
 If you are going to expose these ports be careful. Not all of them run secure protocols. For piece of mind, and for working through firewalls and NAT routers run this on a VPN like OpenVPN or NordVPN. 
 
-## Passwords
-The openjdk-11 setup **will take several minutes**. Please be patient and ignore any repeat Java exceptions whilst the network components start up and try to find each which is expected behaviour. When it's done you will be shown random passwords which you will need to login. *You can change these later from the admin interface.*
-
-![meh](img/takserverpasswords.jpg "TAK server passwords")
 
 ## Admin login
-Use your new admin login to access the interface in a web browser at:
+Use your new random admin login to access the interface in a web browser at:
 
     http://localhost:8080
 
-If it hangs, reload the page after a minute and expect a big scary legal warning about US Gov export controls on a piece of open source software. Be confused for a second and then click ok...
+A successful login will trigger an old security warning which you can ignore as this software is now open source.
 
+![meh](img/warning.jpg "A warning")
 
 ### Logging
 You can access a shell in the running docker container with this command:
@@ -97,13 +93,49 @@ To tail the server log from inside the container:
 
     tail -f /opt/tak/logs/takserver.log
 
+### Changing the logo at the footer of the web page
+
+The logo can be changed **without** stopping or setting up the TAK Server again.
+
+![meh](img/banana.png "A banana")
+
+The script takes one command line argument which is the full path to the **PNG** or **JPG** image of new logo. Sudo permission may not be needed depending on your docker permissions.
+
+```
+chmod +x scripts/logo-replacement.sh
+sudo ./scripts/logo-replacement.sh /home/eric/banana.jpg
+````
+
+The script will check for all dependencies required, and if not present, the script will attempt to install them for you. The dependencies needed are __*openJDK*__ (JAVA environment is required to be able to repack the jar correctly) and ImageMagick for conversion.
+
+## Administration and support
+
+You can find the PDF manual in the tak/docs folder and get help from *community volunteers* via the TAK Discord server. If you ask a bone FAQ already covered in the manual, or demand urgent assistance, expect to get some grief. **RTFM and be patient**.
 
 ### Clean up
 ```
-./scripts/cleanup.sh
+sudo ./scripts/cleanup.sh
 ```
 
-This script will stop the TAK Server container, remove the mapped volumes and remove the folder "tak" which is created in the project root directory (cloned from github) during the setup process. 
+This script will stop the TAK Server container, remove the mapped database volume and remove the folder "tak" which is created in the project root directory (cloned from github) during the setup process. 
+
+WARNING: If you have data in an existing TAK database container it will be lost.
+
+ ## Known issues
+  ### Loads of repeat java exceptions eg java.lang.RuntimeException...
+One or two is expected behaviour due to the time the backend processes take to start up. If you get lots or it's still ongoing after 2 minutes, run the cleanup script as sudo to prune stale images.
+
+  ### Failed to initialize pool: Connection to tak-database:5432 refused
+This indicates a docker network issue. Run the clean up script as sudo to prune stale networks.
+
+ ### The login screen doesn't take my password?
+ Just wait a minute or two. This is expected behaviour due to the time the backend processes take to start up.
+
+ ### Running the /setup wizard breaks the database?
+ This script **is the wizard** so it gets you past the setup wizard (Section 4.4 in the configuration guide) and populates the database tables. Only run the wizard if you know what you're doing as **this will break your database connection** - at which point you should set this up the hard way.
+
+## My custom logo doesn't show up
+If the script ran as sudo and completed ok, refresh your browser's cache with Ctrl-F5
 
 ## Contributing
 Please feel free to open merge requests. A beginner's guide to github.com is here:

@@ -1,8 +1,25 @@
 #!/bin/bash
 
-printf "\nTAK server setup script"
-printf "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
-printf "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted.\n"
+color() {
+    STARTCOLOR="\e[$2";
+    ENDCOLOR="\e[0m";
+    export "$1"="$STARTCOLOR%b$ENDCOLOR" 
+}
+color info 96m
+color success 92m 
+color warning 93m 
+color danger 91m 
+
+docker compose 2> /dev/null
+if [ $? -eq 0 ];
+then
+	echo "alias docker-compose='docker compose'" >> ~/.bashrc
+	source ~/.bashrc
+fi
+
+printf $success "\nTAK server setup script"
+printf $info "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
+printf $warning "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted.\n"
 
 arch=$(dpkg --print-architecture)
 
@@ -11,7 +28,7 @@ DOCKERFILE=docker-compose.yml
 if [ $arch == "arm64" ];
 then
 	DOCKERFILE=docker-compose.arm.yml
-	printf "\nBuilding for arm64...\n"
+	printf "\nBuilding for arm64...\n" "info"
 fi
 
 
@@ -27,7 +44,7 @@ netstat_check () {
 		then
 			proc=$(netstat -plant | grep $i | awk '{print $7}' | cut -d/ -f1,2)
 			prockill=$(netstat -plant | grep $i | awk '{print $7}' | cut -d/ -f1)
-			printf "\nThis process $proc is using port $i which is required for TAK server to operate. Do you wnat me to kill the process now (y/n): "
+			printf $info "\nThis process $proc is using port $i which is required for TAK server to operate. Do you want me to kill the process (y/n): " 
 			read choice
 			if [ $choice == "y" ];
 			then
@@ -37,14 +54,13 @@ netstat_check () {
 			then
 				sudo kill -15 $prockill
 			else
-				printf "Please repeat the process once the port $i is not in use. Exiting now..\n"
+				printf $danger "Please repeat the process once the port $i is not in use. Exiting now..\n" 
 				sleep 1
 				exit 0
 			fi
 		else
-			printf "\nPort $i is available.."
+			printf $success "\nPort $i is available.."
 		fi
-		sleep 0.1
 	done
 	
 }
@@ -53,7 +69,7 @@ tak_folder () {
 	### Check if the folder "tak" exists after previous install or attempt and remove it or leave it for the user to decide
 	if [ -d "./tak" ] 
 	then
-	    printf "\nDirectory 'tak' already exists. This will be removed, do you want to continue? (y/n): "
+	    printf $warning "\nDirectory 'tak' already exists. This will be removed along with the docker volume, do you want to continue? (y/n): "
 	    read dirc
 	    if [ $dirc == "n" ];
 	    then
@@ -67,6 +83,8 @@ tak_folder () {
 	    	exit 0
 	   	fi
 		rm -rf tak
+		rm -rf /tmp/takserver
+		docker volume rm --force tak-server_db_data
 	fi 
 }
 
@@ -77,21 +95,21 @@ checksum () {
 
 	if [ "$(ls -hl *-RELEASE-*.zip 2>/dev/null)" ];
 	then
-		printf "SECURITY WARNING: Make sure the checksums match! You should only download your release from a trusted source eg. tak.gov:\n"
+		printf $warning "SECURITY WARNING: Make sure the checksums match! You should only download your release from a trusted source eg. tak.gov:\n"
 		for file in *.zip;
 		do
 			printf "Computed SHA1 Checksum: "
-			sha1sum $file
+			sha1sum $file 
 			printf "Computed MD5 Checksum: "
 			md5sum $file
 		done
 		printf "\nVerifying checksums against known values for $file...\n"
 		sleep 1
 		printf "SHA1 Verification: "
-		sha1sum -c tak-sha1checksum.txt
+		sha1sum --ignore-missing -c tak-sha1checksum.txt
 		if [ $? -ne 0 ];
 		then
-			printf "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
+			printf $danger "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
 			read check
 			if [ "$check" == "n" ];
 			then
@@ -104,10 +122,10 @@ checksum () {
 			fi
 		fi
 		printf "MD5 Verification: "
-		md5sum -c tak-md5checksum.txt
+		md5sum --ignore-missing -c tak-md5checksum.txt
 		if [ $? -ne 0 ];
 		then
-			printf "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
+			printf $danger "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
 			read check
 			if [ "$check" == "n" ];
 			then
@@ -120,7 +138,7 @@ checksum () {
 			fi
 		fi
 	else
-		printf "\n\tPlease download the release of docker image as per instructions in README.md file. Exiting now...\n\n"
+		printf $danger "\n\tPlease download the release of docker image as per instructions in README.md file. Exiting now...\n\n"
 		sleep 1
 		exit 0
 	fi
@@ -128,38 +146,50 @@ checksum () {
 
 netstat_check
 tak_folder
+if [ -d "tak" ] 
+then
+	printf $danger "Failed to remove the tak folder. You will need to do this as sudo: sudo rm -rf tak\n"
+	exit 0
+fi
 checksum
 
 # The actual container setup starts here
 
 ### Vars
 
-release=`ls -hl *.zip | awk '{print $9}' | cut -d. -f -2`
+release=$(ls -hl *.zip | awk '{print $9}' | cut -d. -f -2)
 
-printf "\nPausing to let you know release version $release will be setup in 5 seconds.\nIf this is wrong, hit Ctrl-C now..."
+printf $warning "\nPausing to let you know release version $release will be setup in 5 seconds.\nIf this is wrong, hit Ctrl-C now..." 
 sleep 5
 
 
 ## Set up directory structure
+if [ -d "/tmp/takserver" ] 
+then
+	rm -rf /tmp/takserver
+fi
+
 unzip $release.zip -d /tmp/takserver
-mv -f /tmp/takserver/$release/tak .
+mv -f /tmp/takserver/$release/tak ./
+chown -R $USER:$USER tak
 clear
 
-cp ./configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
+cp ./scripts/configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
 cp ./postgresql1.conf ./tak/postgresql.conf
-cp ./takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
+cp ./scripts/takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
 
 ## Set admin username and password
 user="admin"
-pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-16} | head -n 1)
+pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-18} | head -n 1)
 password=$pwd"!"
 
 ## Set postgres password
-export pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-16} | head -n 1)"
+pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-18} | head -n 1)"
 pgpassword=$pgpwd"!"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
 
 ## Set variables for generating CA and client certs
+printf $warning "SSL setup. Hit enter to accept the default:\n"
 read -p "State (for cert generation). Default [state] :" state
 read -p "City (for cert generation). Default [city]:" city
 read -p "Organizational Unit (for cert generation). Default [org]:" orgunit
@@ -188,7 +218,6 @@ EOF
 
 ### Runs through setup
 
-printf "waiting for TAK server to go live"
 docker-compose --file $DOCKERFILE up -d --force-recreate
 
 ### Checking if the container is set up and ready to set the certificates
@@ -217,41 +246,48 @@ do
 	fi
 done
 
-printf "waiting for TAK server to go live again (this may take longer on slower machines)"
+printf $info "Waiting for TAK server to go live. This should take < 30s with an AMD64, ~1min on a ARM64 (Pi)\n"
 docker-compose start tak
-
 ### Checks if java is fully initialised
 
 while :
 do
+	sleep 10
+	# docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
 	docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
-	
-	if [ $? -eq 0 ]; 
+	if [ $? -eq 0 ];
 	then
+		# docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 		docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
-		
-		if [ $? -eq 0 ];
+		if [ $? -eq 0 ]; 
 		then
-			break
+			# docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
+			docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
+			if [ $? -eq 0 ];
+			then
+
+				break
+			else
+				sleep 10
+			fi
 		else
 			sleep 10
 		fi
-	
 	else
 		sleep 10
 	fi
 done
 
-### Unsetting the environmental variables for random passwords
-
-unset pwd
-unset pgpwd
-
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
 
-printf "If everything ran successfully, you should be able to hit the http address at http://localhost:8080 and configure TAK server the rest of the way."
-printf "You should probably remove the port 8080:8080 mapping in docker-compose.yml to secure the server afterwards."
-printf "Admin user certs should be under ./tak/certs/files \n"
-printf "Your admin user name is: $user\n" # Web interface default user name
-printf "Your admin password is: $password\n" # Web interface default random password created during setup
-printf "Your Postgresql password is: $pgpassword\n" # PostgreSQL password randomly generated during set up
+printf $success "\n\nIf the database was updated OK (eg. Successfully applied 64 update(s)), login at http://localhost:8080 with your admin account. No need to run the /setup step as this has been done.\n" 
+printf $success "You should probably remove the port 8080:8080 mapping in docker-compose.yml to secure the server afterwards.\n" 
+printf $success "Admin user certs are at ./tak/certs/files \n\n" 
+printf $success "Setup script sponsored by CloudRF.com - \"The API for RF\"\n\n"
+printf $danger "---------PASSWORDS----------------\n\n"
+printf $danger "Admin user name: $user\n" # Web interface default user name
+printf $danger "Admin password: $password\n" # Web interface default random password created during setup
+printf $danger "Postgresql password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
+printf $danger "---------PASSWORDS----------------\n\n"
+printf $warning "MAKE A NOTE OF YOUR PASSWORDS. THEY WON'T BE SHOWN AGAIN.\n"
+printf $info "To start the containers next time you login, execute from this folder: docker-compose up\n"

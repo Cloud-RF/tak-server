@@ -35,7 +35,7 @@ fi
 ### Check if required ports are in use by anything other than docker
 netstat_check () {
 	
-	ports=(8443 8444 8446 8087 8088 9000 9001 8080)
+	ports=(5432 8443 8444 8446 8087 8088 9000 9001 8080)
 	
 	for i in ${ports[@]};
 	do

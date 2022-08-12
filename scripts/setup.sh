@@ -109,7 +109,7 @@ checksum () {
 		sha1sum --ignore-missing -c tak-sha1checksum.txt
 		if [ $? -ne 0 ];
 		then
-			printf $danger "SECURITY WARNING: The checksum is not correct, so the file is different. Do you really want to continue with this setup? (y/n): "
+			printf $danger "SECURITY WARNING: The file is either different OR is not listed in the known releases.\nDo you really want to continue with this setup? (y/n): "
 			read check
 			if [ "$check" == "n" ];
 			then
@@ -189,7 +189,7 @@ pgpassword=$pgpwd"!"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
 
 ## Set variables for generating CA and client certs
-printf $warning "SSL setup. Hit enter to accept the default:\n"
+printf $warning "SSL setup. Hit enter (x4) to accept the defaults:\n"
 read -p "State (for cert generation). Default [state] :" state
 read -p "City (for cert generation). Default [city]:" city
 read -p "Organizational Unit (for cert generation). Default [org]:" orgunit

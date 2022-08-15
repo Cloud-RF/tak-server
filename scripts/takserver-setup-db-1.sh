@@ -12,6 +12,14 @@
 #  then echo "$0 must be run as root."
 #  exit 1
 #fi
+DB_NAME=cot
+DB_EXISTS=`su postgres -c "psql -l 2>/dev/null" | grep ^[[:blank:]]*$DB_NAME`
+if [ "x$DB_EXISTS" != "x" ]; then
+  sed -i 's/127.0.0.1\/32/0.0.0.0\/0/g' /opt/tak/db-utils/pg_hba.conf
+  cp /opt/tak/db-utils/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf
+  su - postgres -c "/usr/lib/postgresql/14/bin/pg_ctl -D /var/lib/postgresql/data -l logfile restart -o '-c max_connections=2100 -c shared_buffers=2560MB'"
+  exit 0
+fi
 
 username='martiuser'
 password=""
@@ -82,19 +90,8 @@ if [ ! -d $PGDATA ]; then
   exit 1
 fi
 
-# Get user's permission before obliterating the database
-DB_EXISTS=`su postgres -c "psql -l 2>/dev/null" | grep ^[[:blank:]]*$DB_NAME`
-if [ "x$DB_EXISTS" != "x" ]; then
-   echo "WARNING: Database '$DB_NAME' already exists!"
-   echo "Proceeding will DESTROY your existing data!"
-   echo "You can back up your data using the pg_dump command. (See 'man pg_dump' for details.)"
-   read -p "Type 'erase' (without quotes) to erase the '$DB_NAME' database now:" kickme
-   if [ "$kickme" != "erase" ]; then
-       echo "User didn't say 'erase'. Aborting."
-       exit 1
-   fi
-   su postgres -c "psql --command='drop database if exists $DB_NAME;'"
-fi 
+su postgres -c "psql --command='drop database if exists $DB_NAME;'"
+ 
 
 if [ -e pg_hba.conf ]; then
   IS_DOCKER='true'

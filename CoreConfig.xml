@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Configuration xmlns="http://bbn.com/marti/xml/config">
+    <network multicastTTL="5" serverId="f6edbf55ccfa4af1b4cfa2d7f177ea67" version="4.7-RELEASE-18-HEAD">
+        <input auth="anonymous" _name="stdtcp" protocol="tcp" port="8087"/>
+        <input auth="anonymous" _name="stdudp" protocol="udp" port="8087"/>
+        <input auth="anonymous" _name="streamtcp" protocol="stcp" port="8088"/>
+        <input _name="stdssl" protocol="tls" port="8089"/>
+        <connector port="8443" _name="https"/>
+        <connector port="8444" useFederationTruststore="true" _name="fed_https"/>
+        <connector port="8446" clientAuth="false" _name="cert_https"/>
+        <connector port="8080" tls="false" _name="http_plaintext"/>
+        <announce/>
+    </network>
+    <auth x509groups="true" x509addAnonymous="false">
+        <File location="UserAuthenticationFile.xml"/>
+    </auth>
+    <submission ignoreStaleMessages="false" validateXml="false"/>
+    <subscription reloadPersistent="false"/>
+    <repository enable="true" numDbConnections="16" connectionPoolAutoSize="true" primaryKeyBatchSize="500" insertionBatchSize="500" archive="false">
+        <connection url="jdbc:postgresql://tak-database:5432/cot" username="martiuser" password="A4qs6s5MsZ06VasUmE!"/>
+    </repository>
+    <repeater enable="true" periodMillis="3000" staleDelayMillis="15000">
+        <repeatableType initiate-test="/event/detail/emergency[@type='911 Alert']" cancel-test="/event/detail/emergency[@cancel='true']" _name="911"/>
+        <repeatableType initiate-test="/event/detail/emergency[@type='Ring The Bell']" cancel-test="/event/detail/emergency[@cancel='true']" _name="RingTheBell"/>
+        <repeatableType initiate-test="/event/detail/emergency[@type='Geo-fence Breached']" cancel-test="/event/detail/emergency[@cancel='true']" _name="GeoFenceBreach"/>
+        <repeatableType initiate-test="/event/detail/emergency[@type='Troops In Contact']" cancel-test="/event/detail/emergency[@cancel='true']" _name="TroopsInContact"/>
+    </repeater>
+    <filter>
+        <thumbnail/>
+        <urladd host="http://192.168.64.3:8080"/>
+        <flowtag enable="false" text=""/>
+        <streamingbroker enable="true"/>
+        <scrubber enable="false" action="overwrite"/>
+        <qos>
+            <deliveryRateLimiter enabled="true">
+                <rateLimitRule clientThresholdCount="500" reportingRateLimitSeconds="200"/>
+                <rateLimitRule clientThresholdCount="1000" reportingRateLimitSeconds="300"/>
+                <rateLimitRule clientThresholdCount="2000" reportingRateLimitSeconds="400"/>
+                <rateLimitRule clientThresholdCount="5000" reportingRateLimitSeconds="800"/>
+                <rateLimitRule clientThresholdCount="10000" reportingRateLimitSeconds="1200"/>
+            </deliveryRateLimiter>
+            <readRateLimiter enabled="false">
+                <rateLimitRule clientThresholdCount="500" reportingRateLimitSeconds="200"/>
+                <rateLimitRule clientThresholdCount="1000" reportingRateLimitSeconds="300"/>
+                <rateLimitRule clientThresholdCount="2000" reportingRateLimitSeconds="400"/>
+                <rateLimitRule clientThresholdCount="5000" reportingRateLimitSeconds="800"/>
+                <rateLimitRule clientThresholdCount="10000" reportingRateLimitSeconds="1200"/>
+            </readRateLimiter>
+            <dosRateLimiter enabled="false" intervalSeconds="60">
+                <dosLimitRule clientThresholdCount="1" messageLimitPerInterval="60"/>
+            </dosRateLimiter>
+        </qos>
+    </filter>
+    <buffer>
+        <latestSA enable="true"/>
+        <queue>
+            <priority/>
+        </queue>
+    </buffer>
+    <dissemination smartRetry="false"/>
+    <certificateSigning CA="TAKServer">
+        <certificateConfig>
+            <nameEntries>
+                <nameEntry name="O" value="TAK"/>
+                <nameEntry name="OU" value="TAK"/>
+            </nameEntries>
+        </certificateConfig>
+        <TAKServerCAConfig keystore="JKS" keystoreFile="/opt/tak/certs/files/takserver.jks" keystorePass="atakatak" validityDays="30" signatureAlg="SHA256WithRSA"/>
+    </certificateSigning>
+    <security>
+        <tls keystore="JKS" keystoreFile="/opt/tak/certs/files/takserver.jks" keystorePass="atakatak" truststore="JKS" truststoreFile="/opt/tak/certs/files/truststore-root.jks" truststorePass="atakatak" context="TLSv1.2" keymanager="SunX509"/>
+    </security>
+    <federation missionFederationDisruptionToleranceRecencySeconds="43200">
+        <federation-server webBaseUrl="https://192.168.64.3:8443/Marti">
+            <tls keystore="JKS" keystoreFile="/opt/tak/certs/files/takserver.jks" keystorePass="atakatak" truststore="JKS" truststoreFile="certs/files/fed-truststore.jks" truststorePass="atakatak" keymanager="SunX509"/>
+            <v1Tls tlsVersion="TLSv1.2"/>
+            <v1Tls tlsVersion="TLSv1.3"/>
+        </federation-server>
+        <fileFilter>
+            <fileExtension>pref</fileExtension>
+        </fileFilter>
+    </federation>
+    <plugins/>
+    <cluster/>
+    <vbm/>
+</Configuration>

@@ -12,14 +12,14 @@
 #  then echo "$0 must be run as root."
 #  exit 1
 #fi
-DB_NAME=cot
-DB_EXISTS=`su postgres -c "psql -l 2>/dev/null" | grep ^[[:blank:]]*$DB_NAME`
-if [ "x$DB_EXISTS" != "x" ]; then
-  sed -i 's/127.0.0.1\/32/0.0.0.0\/0/g' /opt/tak/db-utils/pg_hba.conf
-  cp /opt/tak/db-utils/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf
-  su - postgres -c "/usr/lib/postgresql/14/bin/pg_ctl -D /var/lib/postgresql/data -l logfile restart -o '-c max_connections=2100 -c shared_buffers=2560MB'"
-  exit 0
-fi
+# DB_NAME=cot
+# DB_EXISTS=`su postgres -c "psql -l 2>/dev/null" | grep ^[[:blank:]]*$DB_NAME`
+# if [ "x$DB_EXISTS" != "x" ]; then
+#   sed -i 's/127.0.0.1\/32/0.0.0.0\/0/g' /opt/tak/db-utils/pg_hba.conf
+#   cp /opt/tak/db-utils/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf
+#   su - postgres -c "/usr/lib/postgresql/14/bin/pg_ctl -D /var/lib/postgresql/data -l logfile restart -o '-c max_connections=2100 -c shared_buffers=2560MB'"
+#   exit 0
+# fi
 
 username='martiuser'
 password=""

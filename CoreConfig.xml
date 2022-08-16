@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Configuration xmlns="http://bbn.com/marti/xml/config">
     <network multicastTTL="5" serverId="f6edbf55ccfa4af1b4cfa2d7f177ea67" version="4.7-RELEASE-18-HEAD">
-        <input auth="anonymous" _name="stdtcp" protocol="tcp" port="8087"/>
+        <!-- <input auth="anonymous" _name="stdtcp" protocol="tcp" port="8087"/>
         <input auth="anonymous" _name="stdudp" protocol="udp" port="8087"/>
-        <input auth="anonymous" _name="streamtcp" protocol="stcp" port="8088"/>
+        <input auth="anonymous" _name="streamtcp" protocol="stcp" port="8088"/> -->
         <input _name="stdssl" protocol="tls" port="8089"/>
         <connector port="8443" _name="https"/>
         <connector port="8444" useFederationTruststore="true" _name="fed_https"/>
         <connector port="8446" clientAuth="false" _name="cert_https"/>
-        <connector port="8080" tls="false" _name="http_plaintext"/>
+        <!-- <connector port="8080" tls="false" _name="http_plaintext"/> -->
         <announce/>
     </network>
     <auth x509groups="true" x509addAnonymous="false">

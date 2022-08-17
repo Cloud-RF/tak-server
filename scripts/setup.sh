@@ -217,9 +217,9 @@ CITY=$city
 ORGANIZATIONAL_UNIT=$orgunit
 EOF
 
-### Runs through setup
+### Runs through setup, starts both containers
 
-docker-compose --file $DOCKERFILE up -d --force-recreate
+docker-compose --file $DOCKERFILE up  --force-recreate &
 
 ### Checking if the container is set up and ready to set the certificates
 
@@ -281,7 +281,7 @@ done
 
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
 
-printf $success "\n\nIf the database was updated OK (eg. Successfully applied 64 update(s)), login at http://localhost:8080 with your admin account. No need to run the /setup step as this has been done.\n" 
+printf $success "\n\nIf the database was updated OK (eg. Successfully applied 64 update(s)), \nExport relevant certificate from tak server and upload to the browser as per README.md fiel, \nlogin at https://localhost:8443 with your admin account. No need to run the /setup step as this has been done.\n" 
 printf $success "You should probably remove the port 8080:8080 mapping in docker-compose.yml to secure the server afterwards.\n" 
 printf $success "Admin user certs are at ./tak/certs/files \n\n" 
 printf $success "Setup script sponsored by CloudRF.com - \"The API for RF\"\n\n"

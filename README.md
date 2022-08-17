@@ -71,19 +71,76 @@ For more information on using TAK server refer to [the docs on the TPC Github](h
 ### Network ports
 TAK server needs the following port numbers to operate. Services already using these will cause a problem which the script will detect and offer a resolution for. If you're running as sudo it can kill the processes.
 
-    8443, 8444, 8446, 8087, 8088, 8089, 9000, 9001, 8080
+    8443, 8444, 8446, 8089, 9000, 9001
 
 If you are going to expose these ports be careful. Not all of them run secure protocols. For piece of mind, and for working through firewalls and NAT routers run this on a VPN like OpenVPN or NordVPN. 
 
 
 ## Admin login
-Use your new random admin login to access the interface in a web browser at:
 
-    http://localhost:8080
+The login to the web interface requires the certificate created during setup. The certificate needs to be uploaded to the browser first. The name of this certificate is the one which you have typed after specifying the State, City, Company during the certificate creation. The certificates names can be checked by:
+
+```bash
+docker exec -it tak-server_tak_1 bash 
+ls /opt/tak/certs/files
+exit
+```
+
+### Exporting the Certificate
+
+The certificate needs to be exported from the tak server first.
+
+On your local command line use the command below and replace the **"<>"** with relevant information:
+
+```bash
+docker cp tak-server_tak_1:/opt/tak/certs/files/<name of your certificate>.p12 <path to local directory to download to>
+``` 
+### Uploading the certificate
+
+**Google based browsers**
+
+* Go to **"Settings"** --> **"Privacy and Security"** --> **"Security"** --> **"Manage Certificates"**
+* Navigate to **"Your certificates"** 
+* Press **"Import"** button and choose your *".p12"* file (pw atakatak)
+
+The web UI should be now accessible via the address given below.
+
+**Firefox**
+
+* Go to **"Settings"** --> **"Privacy & Security"** --> scroll down to **"Certificates"** section.
+* Click the button **"View Certificates"**
+* Choose **"Your Certificates"** section and **"Import"** your *".p12"* certificate (pw atakatak)
+* Choose the **"Authorities"** section
+* Locate **"TAK"** line, there should be your certificate name displayed underneath it
+* Click your certificate name and press button **"Edit Trust"**
+* __*TICK*__ the box with **"This certificate can identify web sites"** statement, then click **"OK"**
+
+### Web UI access
+The login to web ui can be only via **ssl** on port **8443**.
+
+The login prompt will not show up as the server authenticates the user based on the uploaded certificate.
+
+The user interface should be available at the below address:
+
+    https://localhost:8443
 
 A successful login will trigger an old security warning which you can ignore as this software is now open source.
 
 ![meh](img/warning.jpg "A warning")
+
+### Starting Server after shutdown
+Make sure you are in the main __*"tak-server"*__ folder.
+
+```bash
+docker-compose up
+```
+
+### Shutting down running TAK server
+Make sure you are in the main __*"tak-server"*__ folder.
+
+```bash
+docker-compose down
+```
 
 ### Logging
 You can access a shell in the running docker container with this command:
@@ -141,6 +198,9 @@ Stop your vpn, prune your networks
 service openvpn stop
 docker network prune
 ```
+
+### Can't import the certificate to my browser
+Ensure the .p12 file is owned by you. Use the atakatak password when prompted and ensure you enable the TAK authority to "authenticate websites" in Firefox.
 
 ## My custom logo doesn't show up
 If the script ran as sudo and completed ok, refresh your browser's cache with Ctrl-F5

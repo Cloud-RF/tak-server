@@ -35,7 +35,7 @@ fi
 ### Check if required ports are in use by anything other than docker
 netstat_check () {
 	
-	ports=(5432 8443 8444 8446 8087 8088 9000 9001 8080)
+	ports=(5432 8089 8443 8444 8446 9000 9001)
 	
 	for i in ${ports[@]};
 	do
@@ -217,14 +217,16 @@ CITY=$city
 ORGANIZATIONAL_UNIT=$orgunit
 EOF
 
-### Runs through setup
+### Runs through setup, starts both containers
 
-docker-compose --file $DOCKERFILE up -d --force-recreate
+docker-compose --file $DOCKERFILE up  --force-recreate &
 
 ### Checking if the container is set up and ready to set the certificates
 
 while :
 do
+	sleep 10 # let the PG stderr messages conclude...
+	printf $warning "------------CERTIFICATE GENERATION--------------\n"
 	docker-compose exec tak bash -c "cd /opt/tak/certs && ./makeRootCa.sh"
 	if [ $? -eq 0 ];
 	then
@@ -242,8 +244,6 @@ do
 		else
 			sleep 5
 		fi
-	else
-		sleep 5
 	fi
 done
 
@@ -253,7 +253,7 @@ docker-compose start tak
 
 while :
 do
-	sleep 10
+	sleep 5
 	# docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
 	docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 	if [ $? -eq 0 ];
@@ -269,21 +269,25 @@ do
 
 				break
 			else
-				sleep 10
+				sleep 5
 			fi
 		else
-			sleep 10
+			sleep 5
 		fi
 	else
-		sleep 10
+		printf $info "No joy with DB, will retry in 5...\n" 
+		sleep 5
 	fi
 done
 
+cp ./tak/certs/files/$user.p12 .
+
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
 
-printf $success "\n\nIf the database was updated OK (eg. Successfully applied 64 update(s)), login at http://localhost:8080 with your admin account. No need to run the /setup step as this has been done.\n" 
-printf $success "You should probably remove the port 8080:8080 mapping in docker-compose.yml to secure the server afterwards.\n" 
-printf $success "Admin user certs are at ./tak/certs/files \n\n" 
+printf $success "\n\nIf the database was updated OK (eg. Successfully applied 64 update(s)), \n"
+printf $warning "Import the $user.p12 certificate from this folder to your browser as per the README.md file\n"
+printf $success "Login at https://localhost:8443 with your admin account. No need to run the /setup step as this has been done.\n" 
+printf $info "Certificates are at ./tak/certs/files \n\n" 
 printf $success "Setup script sponsored by CloudRF.com - \"The API for RF\"\n\n"
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $danger "Admin user name: $user\n" # Web interface default user name

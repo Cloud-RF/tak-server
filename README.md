@@ -101,7 +101,7 @@ docker cp tak-server_tak_1:/opt/tak/certs/files/<name of your certificate>.p12 <
 
 * Go to **"Settings"** --> **"Privacy and Security"** --> **"Security"** --> **"Manage Certificates"**
 * Navigate to **"Your certificates"** 
-* Press **"Import"** button and choose your *".p12"* file
+* Press **"Import"** button and choose your *".p12"* file (pw atakatak)
 
 The web UI should be now accessible via the address given below.
 
@@ -109,7 +109,7 @@ The web UI should be now accessible via the address given below.
 
 * Go to **"Settings"** --> **"Privacy & Security"** --> scroll down to **"Certificates"** section.
 * Click the button **"View Certificates"**
-* Choose **"Your Certificates"** section and **"Import"** your *".p12"* certificate
+* Choose **"Your Certificates"** section and **"Import"** your *".p12"* certificate (pw atakatak)
 * Choose the **"Authorities"** section
 * Locate **"TAK"** line, there should be your certificate name displayed underneath it
 * Click your certificate name and press button **"Edit Trust"**
@@ -198,6 +198,9 @@ Stop your vpn, prune your networks
 service openvpn stop
 docker network prune
 ```
+
+### Can't import the certificate to my browser
+Ensure the .p12 file is owned by you. Use the atakatak password when prompted and ensure you enable the TAK authority to "authenticate websites" in Firefox.
 
 ## My custom logo doesn't show up
 If the script ran as sudo and completed ok, refresh your browser's cache with Ctrl-F5

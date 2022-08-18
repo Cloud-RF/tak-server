@@ -1,3 +1,4 @@
 7ca58221b8d35d40df906144c5834e6d9fa85b47  takserver-docker-4.6-RELEASE-26.zip
 b688359659a05204202c21458132a64ec1ba0184  takserver-docker-4.7-RELEASE-4.zip
 cd56406d3539030ab9b9b3fbae08b56b352b9b53  takserver-docker-4.7-RELEASE-18.zip
+f427ae3e860fddb8907047f157ada5764334c48d  takserver-docker-4.7-RELEASE-20.zip

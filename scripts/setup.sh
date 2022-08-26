@@ -10,11 +10,12 @@ color success 92m
 color warning 93m 
 color danger 91m 
 
-docker compose 2> /dev/null
-if [ $? -eq 0 ];
+DOCKER_COMPOSE="docker-compose"
+
+if ! command -v docker-compose
 then
-	echo "alias docker-compose='docker compose'" >> ~/.bashrc
-	source ~/.bashrc
+	DOCKER_COMPOSE="docker compose"
+	echo "Docker compose command set to new style $DOCKER_COMPOSE"
 fi
 
 printf $success "\nTAK server setup script"
@@ -219,7 +220,7 @@ EOF
 
 ### Runs through setup, starts both containers
 
-docker-compose --file $DOCKERFILE up  --force-recreate &
+$DOCKER_COMPOSE --file $DOCKERFILE up  --force-recreate &
 
 ### Checking if the container is set up and ready to set the certificates
 
@@ -227,16 +228,16 @@ while :
 do
 	sleep 10 # let the PG stderr messages conclude...
 	printf $warning "------------CERTIFICATE GENERATION--------------\n"
-	docker-compose exec tak bash -c "cd /opt/tak/certs && ./makeRootCa.sh"
+	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeRootCa.sh"
 	if [ $? -eq 0 ];
 	then
-		docker-compose exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh server takserver"
+		$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh server takserver"
 		if [ $? -eq 0 ];
 		then
-			docker-compose exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client $user"	
+			$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client $user"	
 			if [ $? -eq 0 ];
 			then
-				docker-compose stop tak
+				$DOCKER_COMPOSE stop tak
 				break
 			else 
 				sleep 5
@@ -248,22 +249,22 @@ do
 done
 
 printf $info "Waiting for TAK server to go live. This should take < 30s with an AMD64, ~1min on a ARM64 (Pi)\n"
-docker-compose start tak
+$DOCKER_COMPOSE start tak
 ### Checks if java is fully initialised
 
 while :
 do
 	sleep 5
 	# docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
-	docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
+	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 	if [ $? -eq 0 ];
 	then
 		# docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
-		docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
+		$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
 		if [ $? -eq 0 ]; 
 		then
 			# docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
-			docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
+			$DOCKER_COMPOSE exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
 			if [ $? -eq 0 ];
 			then
 
@@ -295,4 +296,4 @@ printf $danger "Admin password: $password\n" # Web interface default random pass
 printf $danger "Postgresql password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $warning "MAKE A NOTE OF YOUR PASSWORDS. THEY WON'T BE SHOWN AGAIN.\n"
-printf $info "To start the containers next time you login, execute from this folder: docker-compose up\n"
+printf $info "To start the containers next time you login, execute from this folder: $DOCKER_COMPOSE up\n"

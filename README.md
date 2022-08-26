@@ -39,6 +39,11 @@ The size blew up after 4.6 due to 900GB of DTED which was added to webtak.
 - A TAK server release
 - 4GB memory
 - Network connection 
+- unzip and netstat utilities
+
+```
+apt-get install unzip net-tools
+```
 
 ## Installation
 Fetch the git repo and cd into the directory

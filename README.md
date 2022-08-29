@@ -41,13 +41,10 @@ The size blew up after 4.6 due to 900GB of DTED which was added to webtak.
 - Network connection 
 - unzip and netstat utilities
 
-```
-apt-get install unzip net-tools
-```
-
 ## Installation
-Fetch the git repo and cd into the directory
+Fetch the dependencies, then the git repo and cd into the directory
 
+    apt-get install docker-compose unzip net-tools
     git clone https://github.com/Cloud-RF/tak-server.git
     cd tak-server
 
@@ -84,7 +81,7 @@ If you are going to expose these ports be careful. Not all of them run secure pr
 
 ## Admin login
 
-The login to the web interface requires the certificate created during setup. The certificate needs to be uploaded to the browser first. The name of this certificate is the one which you have typed after specifying the State, City, Company during the certificate creation. The certificates names can be checked by:
+The login to the web interface requires the certificate created during setup. The certificate needs to be uploaded to the browser first. The name of this certificate is the one which you have typed after specifying the State, City, Company during the certificate creation. Default is admin.p12. The certificates names can be checked by:
 
 ```bash
 docker exec -it tak-server_tak_1 bash 
@@ -92,18 +89,12 @@ ls /opt/tak/certs/files
 exit
 ```
 
-### Exporting the Certificate
+## Installing your admin Certificate
 
-The certificate needs to be exported from the tak server first.
+The admin.p12 certificate needs to be copied from ./tak/certs/files/ and installed in a web browser. This not only provides TLS transport security with mutual authentication (Client > Server, Server > Client) but it proves your identity and saves you having to type a tedious password each time.
 
-On your local command line use the command below and replace the **"<>"** with relevant information:
 
-```bash
-docker cp tak-server_tak_1:/opt/tak/certs/files/<name of your certificate>.p12 <path to local directory to download to>
-``` 
-### Uploading the certificate
-
-**Google based browsers**
+**Chrome**
 
 * Go to **"Settings"** --> **"Privacy and Security"** --> **"Security"** --> **"Manage Certificates"**
 * Navigate to **"Your certificates"** 
@@ -121,30 +112,28 @@ The web UI should be now accessible via the address given below.
 * Click your certificate name and press button **"Edit Trust"**
 * __*TICK*__ the box with **"This certificate can identify web sites"** statement, then click **"OK"**
 
-### Web UI access
-The login to web ui can be only via **ssl** on port **8443**.
+## Web UI access
+The web user interface can be only accessed via **SSL** on port **8443**.
 
 The login prompt will not show up as the server authenticates the user based on the uploaded certificate.
 
-The user interface should be available at the below address:
+The user interface is available at the below address and on all other NICs. Check your firewall as you may not want this exposed on a public NIC.
 
     https://localhost:8443
 
-A successful login will trigger an old security warning which you can ignore as this software is now open source.
+### Re-starting Server after shutdown
+Make sure you are in the main __*"tak-server"*__ folder and append the -d flag to background the process.
 
-![meh](img/warning.jpg "A warning")
-
-### Starting Server after shutdown
-Make sure you are in the main __*"tak-server"*__ folder.
-
-```bash
-docker-compose up
+```
+cd tak-server
+docker-compose up -d
 ```
 
 ### Shutting down running TAK server
 Make sure you are in the main __*"tak-server"*__ folder.
 
-```bash
+```
+cd tak-server
 docker-compose down
 ```
 
@@ -157,24 +146,9 @@ To tail the server log from inside the container:
 
     tail -f /opt/tak/logs/takserver.log
 
-### Changing the logo at the footer of the web page
+To tail the server log from *outside* the container as the tak folder is mapped:
 
-The logo can be changed **without** stopping or setting up the TAK Server again.
-
-![meh](img/banana.png "A banana")
-
-The script takes one command line argument which is the full path to the **PNG** or **JPG** image of new logo. Sudo permission may not be needed depending on your docker permissions.
-
-```
-chmod +x scripts/logo-replacement.sh
-sudo ./scripts/logo-replacement.sh /home/eric/banana.jpg
-````
-
-The script will check for all dependencies required, and if not present, the script will attempt to install them for you. The dependencies needed are __*openJDK*__ (JAVA environment is required to be able to repack the jar correctly) and ImageMagick for conversion.
-
-## Administration and support
-
-You can find the PDF manual in the tak/docs folder and get help from *community volunteers* via the TAK Discord server. If you ask a bone FAQ already covered in the manual, or demand urgent assistance, expect to get some grief. **RTFM and be patient**.
+    tail -f ./tak/logs/takserver.log
 
 ### Clean up
 ```
@@ -185,31 +159,8 @@ This script will stop the TAK Server container, remove the mapped database volum
 
 WARNING: If you have data in an existing TAK database container it will be lost.
 
- ## Known issues
-  ### Loads of repeat java exceptions eg java.lang.RuntimeException...
-One or two is expected behaviour due to the time the backend processes take to start up. If you get lots or it's still ongoing after 2 minutes, run the cleanup script as sudo to prune stale images.
-
-  ### Failed to initialize pool: Connection to tak-database:5432 refused
-This indicates a docker network issue. Run the clean up script as sudo to prune stale networks.
-
- ### The login screen doesn't take my password?
- Just wait a minute or two. This is expected behaviour due to the time the backend processes take to start up.
-
- ### Running the /setup wizard breaks the database?
- This script **is the wizard** so it gets you past the setup wizard (Section 4.4 in the configuration guide) and populates the database tables. Only run the wizard if you know what you're doing as **this will break your database connection** - at which point you should set this up the hard way.
-
-### ERROR: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network
-Stop your vpn, prune your networks
-```
-service openvpn stop
-docker network prune
-```
-
-### Can't import the certificate to my browser
-Ensure the .p12 file is owned by you. Use the atakatak password when prompted and ensure you enable the TAK authority to "authenticate websites" in Firefox.
-
-## My custom logo doesn't show up
-If the script ran as sudo and completed ok, refresh your browser's cache with Ctrl-F5
+# FAQ
+See [Frequently asked questions](FAQ.md)
 
 ## Contributing
 Please feel free to open merge requests. A beginner's guide to github.com is here:

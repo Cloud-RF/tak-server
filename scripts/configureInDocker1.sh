@@ -1,6 +1,7 @@
 #!/bin/bash
 
-sed -i 's/127.0.0.1\/32/0.0.0.0\/0/g' /opt/tak/db-utils/pg_hba.conf
+# Added for 4.7 REL 18 where they broke DB auth
+#sed -i 's/127.0.0.1\/32/0.0.0.0\/0/g' /opt/tak/db-utils/pg_hba.conf
 
 if [ -f "/var/lib/postgresql/data/postgresql.conf" ];
 then

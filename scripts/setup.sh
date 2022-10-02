@@ -248,7 +248,7 @@ do
 	fi
 done
 
-$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && chown -R $USER:$USER *"
+$DOCKER_COMPOSE exec tak bash -c "chmod -R 755 /opt/tak/certs/files"
 
 printf $info "Waiting for TAK server to go live. This should take < 30s with an AMD64, ~1min on a ARM64 (Pi)\n"
 $DOCKER_COMPOSE start tak

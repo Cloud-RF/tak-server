@@ -182,12 +182,12 @@ cp ./CoreConfig.xml ./tak/CoreConfig.xml
 
 ## Set admin username and password
 user="admin"
-pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-18} | head -n 1)
-password=$pwd"!"
+pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | head -n 1)
+password=$pwd"Meh1!"
 
 ## Set postgres password
-pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-18} | head -n 1)"
-pgpassword=$pgpwd"!"
+pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | head -n 1)"
+pgpassword=$pgpwd"Meh1!"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
 
 ## Set variables for generating CA and client certs
@@ -211,6 +211,12 @@ then
 	orgunit="org"
 fi
 
+# Update local env
+export STATE=$state
+export CITY=$city
+export ORGANIZATIONAL_UNIT=$orgunit
+
+
 # Writes variables to a .env file for docker-compose
 cat << EOF > .env
 STATE=$state
@@ -219,7 +225,7 @@ ORGANIZATIONAL_UNIT=$orgunit
 EOF
 
 ### Runs through setup, starts both containers
-
+$DOCKER_COMPOSE --file $DOCKERFILE build
 $DOCKER_COMPOSE --file $DOCKERFILE up  --force-recreate &
 
 ### Checking if the container is set up and ready to set the certificates
@@ -237,7 +243,7 @@ do
 			$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client $user"	
 			if [ $? -eq 0 ];
 			then
-				$DOCKER_COMPOSE stop tak
+				#$DOCKER_COMPOSE stop tak
 				break
 			else 
 				sleep 5
@@ -248,13 +254,34 @@ do
 	fi
 done
 
-printf $info "Waiting for TAK server to go live. This should take < 30s with an AMD64, ~1min on a ARM64 (Pi)\n"
-$DOCKER_COMPOSE start tak
-### Checks if java is fully initialised
+#$DOCKER_COMPOSE start tak
 
+printf $info "Creating certificates for 4 users in tak/certs/files since nobody can read a fucking manual\n"
+
+# Set permissions so user can write to certs/files
+$DOCKER_COMPOSE exec tak bash -c "useradd $USER && chown -R $USER:$USER /opt/tak/certs/"
+
+# get IP
+NIC=$(route | grep default | awk '{print $8}')
+IP=$(ip addr show $NIC | grep "inet " | awk '{print $2}' | cut -d "/" -f1)
+
+# Make 2 users
+cd tak/certs
+./makeCert.sh client user1
+./makeCert.sh client user2
+
+# Make 2 data packages
+cd ../../
+./scripts/certDP.sh $IP user1
+./scripts/certDP.sh $IP user2
+
+
+
+printf $info "Waiting for TAK server to go live. This should take < 30s with an AMD64, ~1min on a ARM64 (Pi)\n"
+### Checks if java is fully initialised
 while :
 do
-	sleep 5
+	sleep 10
 	# docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
 	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 	if [ $? -eq 0 ];
@@ -276,8 +303,7 @@ do
 			sleep 5
 		fi
 	else
-		printf $info "No joy with DB, will retry in 5...\n" 
-		sleep 5
+		printf $info "No joy with DB, will retry in 10...\n" 
 	fi
 done
 
@@ -287,8 +313,8 @@ cp ./tak/certs/files/$user.p12 .
 
 printf $success "\n\nIf the database was updated OK (eg. Successfully applied 64 update(s)), \n"
 printf $warning "Import the $user.p12 certificate from this folder to your browser as per the README.md file\n"
-printf $success "Login at https://localhost:8443 with your admin account. No need to run the /setup step as this has been done.\n" 
-printf $info "Certificates are at ./tak/certs/files \n\n" 
+printf $success "Login at https://$IP:8443 with your admin account. No need to run the /setup step as this has been done.\n" 
+printf $info "Certificates and *CERT DATA PACKAGES* are in tak/certs/files \n\n" 
 printf $success "Setup script sponsored by CloudRF.com - \"The API for RF\"\n\n"
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $danger "Admin user name: $user\n" # Web interface default user name

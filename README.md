@@ -159,6 +159,14 @@ This script will stop the TAK Server container, remove the mapped database volum
 
 WARNING: If you have data in an existing TAK database container it will be lost.
 
+## Adding your first EUD / ATAK device
+
+If you've never setup ATAK with a server before you need server and user certificates. You can load these manually as .p12 files or the easier way is with a .zip data package and a manifest.
+
+You can find ready made data packages in the tak/certs/files folder. You need to copy these to your device's SD card then import the .zip into ATAK / iTAK with the "import" function and choose "Local SD".
+
+This will add a server, certificates and a user account. You will still need to create this user with the matching name eg. user1 in your TAK server user management dashboard and assign them to a common group.
+
 # FAQ
 See [Frequently asked questions](FAQ.md)
 

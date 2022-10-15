@@ -254,9 +254,7 @@ do
 	fi
 done
 
-#$DOCKER_COMPOSE start tak
-
-printf $info "Creating certificates for 4 users in tak/certs/files since nobody can read a fucking manual\n"
+printf $info "Creating certificates for 2 users in tak/certs/files since nobody can read a fucking manual\n"
 
 # Set permissions so user can write to certs/files
 $DOCKER_COMPOSE exec tak bash -c "useradd $USER && chown -R $USER:$USER /opt/tak/certs/"
@@ -274,7 +272,6 @@ cd tak/certs
 cd ../../
 ./scripts/certDP.sh $IP user1
 ./scripts/certDP.sh $IP user2
-
 
 
 printf $info "Waiting for TAK server to go live. This should take < 30s with an AMD64, ~1min on a ARM64 (Pi)\n"

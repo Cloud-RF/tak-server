@@ -41,6 +41,9 @@ The size blew up after 4.6 due to 900GB of DTED which was added to webtak.
 - Network connection 
 - unzip and netstat utilities
 
+## Setup video 
+"TAK Server install (Docker)" https://www.youtube.com/watch?v=h4PA9NN-cDk
+
 ## Installation
 Fetch the dependencies, then the git repo and cd into the directory
 

@@ -188,7 +188,13 @@ password=$pwd"Meh1!"
 ## Set postgres password
 pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | head -n 1)"
 pgpassword=$pgpwd"Meh1!"
+
+# get IP
+NIC=$(route | grep default | awk '{print $8}')
+IP=$(ip addr show $NIC | grep "inet " | awk '{print $2}' | cut -d "/" -f1)
+
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
+sed -i "s/HOSTIP/$IP/g" tak/CoreConfig.xml
 
 ## Set variables for generating CA and client certs
 printf $warning "SSL setup. Hit enter (x4) to accept the defaults:\n"
@@ -225,7 +231,6 @@ ORGANIZATIONAL_UNIT=$orgunit
 EOF
 
 ### Runs through setup, starts both containers
-$DOCKER_COMPOSE --file $DOCKERFILE build
 $DOCKER_COMPOSE --file $DOCKERFILE up  --force-recreate &
 
 ### Checking if the container is set up and ready to set the certificates
@@ -243,7 +248,9 @@ do
 			$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client $user"	
 			if [ $? -eq 0 ];
 			then
-				#$DOCKER_COMPOSE stop tak
+				# Set permissions so user can write to certs/files
+				$DOCKER_COMPOSE exec tak bash -c "useradd $USER && chown -R $USER:$USER /opt/tak/certs/"
+				$DOCKER_COMPOSE stop tak
 				break
 			else 
 				sleep 5
@@ -254,14 +261,7 @@ do
 	fi
 done
 
-printf $info "Creating certificates for 2 users in tak/certs/files since nobody can read a fucking manual\n"
-
-# Set permissions so user can write to certs/files
-$DOCKER_COMPOSE exec tak bash -c "useradd $USER && chown -R $USER:$USER /opt/tak/certs/"
-
-# get IP
-NIC=$(route | grep default | awk '{print $8}')
-IP=$(ip addr show $NIC | grep "inet " | awk '{print $2}' | cut -d "/" -f1)
+printf $info "Creating certificates for 2 users in tak/certs/files for a quick setup via TAK's import function\n"
 
 # Make 2 users
 cd tak/certs
@@ -275,6 +275,8 @@ cd ../../
 
 
 printf $info "Waiting for TAK server to go live. This should take < 30s with an AMD64, ~1min on a ARM64 (Pi)\n"
+docker-compose start tak
+
 ### Checks if java is fully initialised
 while :
 do

@@ -37,7 +37,7 @@ The size blew up after 4.6 due to 900GB of DTED which was added to webtak.
 ## Requirements
 - Docker
 - A TAK server release
-- 4GB memory
+- 2GB memory
 - Network connection 
 - unzip and netstat utilities
 
@@ -169,6 +169,16 @@ If you've never setup ATAK with a server before you need server and user certifi
 You can find ready made data packages in the tak/certs/files folder. You need to copy these to your device's SD card then import the .zip into ATAK / iTAK with the "import" function and choose "Local SD".
 
 This will add a server, certificates and a user account. You will still need to create this user with the matching name eg. user1 in your TAK server user management dashboard and assign them to a common group.
+
+### Transferring your ZIP files via HTTP
+If you like to live dangerously, you can run a script to serve the .zip files on TCP port 12345. eg. http://0.0.0.0:12345 This launches a mini Python web server and serves the content of the 'share' folder which will contain your certificates. Note that sharing certificates via insecure protocols is not secure. 
+
+    ./scripts/shareCerts.sh
+    Serving HTTP on 0.0.0.0 port 12345 (http://0.0.0.0:12345/) ...
+    10.0.0.5 - - [23/Nov/2022 15:49:52] "GET / HTTP/1.1" 200 -
+    10.0.0.5 - - [23/Nov/2022 15:49:54] "GET /user1-10.0.0.3.dp.zip HTTP/1.1" 200 
+
+Stop the script with Ctrl-C once done to stop randoms fetching your certs.
 
 # FAQ
 See [Frequently asked questions](FAQ.md)

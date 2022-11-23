@@ -17,7 +17,7 @@
     <submission ignoreStaleMessages="false" validateXml="false"/>
     <subscription reloadPersistent="false"/>
     <repository enable="true" numDbConnections="16" connectionPoolAutoSize="true" primaryKeyBatchSize="500" insertionBatchSize="500" archive="false">
-        <connection url="jdbc:postgresql://tak-database:5432/cot" username="martiuser" password="A4qs6s5MsZ06VasUmE!"/>
+        <connection url="jdbc:postgresql://HOSTIP:5432/cot" username="martiuser" password="A4qs6s5MsZ06VasUmE!"/>
     </repository>
     <repeater enable="true" periodMillis="3000" staleDelayMillis="15000">
         <repeatableType initiate-test="/event/detail/emergency[@type='911 Alert']" cancel-test="/event/detail/emergency[@cancel='true']" _name="911"/>
@@ -27,7 +27,7 @@
     </repeater>
     <filter>
         <thumbnail/>
-        <urladd host="http://192.168.64.3:8080"/>
+        <urladd host="https://HOSTIP:8433"/>
         <flowtag enable="false" text=""/>
         <streamingbroker enable="true"/>
         <scrubber enable="false" action="overwrite"/>
@@ -71,7 +71,7 @@
         <tls keystore="JKS" keystoreFile="/opt/tak/certs/files/takserver.jks" keystorePass="atakatak" truststore="JKS" truststoreFile="/opt/tak/certs/files/truststore-root.jks" truststorePass="atakatak" context="TLSv1.2" keymanager="SunX509"/>
     </security>
     <federation missionFederationDisruptionToleranceRecencySeconds="43200">
-        <federation-server webBaseUrl="https://192.168.64.3:8443/Marti">
+        <federation-server webBaseUrl="https://HOSTIP:8443/Marti">
             <tls keystore="JKS" keystoreFile="/opt/tak/certs/files/takserver.jks" keystorePass="atakatak" truststore="JKS" truststoreFile="certs/files/fed-truststore.jks" truststorePass="atakatak" keymanager="SunX509"/>
             <v1Tls tlsVersion="TLSv1.2"/>
             <v1Tls tlsVersion="TLSv1.3"/>

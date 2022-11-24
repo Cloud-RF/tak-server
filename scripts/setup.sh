@@ -18,9 +18,10 @@ then
 	echo "Docker compose command set to new style $DOCKER_COMPOSE"
 fi
 
-printf $success "\nTAK server setup script"
+
+printf $success "\nTAK server setup script sponsored by CloudRF.com - \"The API for RF\"\n"
 printf $info "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
-printf $warning "\nElevated privileges are required to enumerate process names which may be holding open TCP ports.\nPlease enter your password when prompted.\n"
+printf $warning "\nYou should install this as a user. Elevated privileges (sudo) are only required to clean up a previous install eg. sudo ./scripts/cleanup.sh\n"
 
 arch=$(dpkg --print-architecture)
 
@@ -40,25 +41,11 @@ netstat_check () {
 	
 	for i in ${ports[@]};
 	do
-		sudo netstat -plant | grep $i
+		netstat -lant | grep $i
 		if [ $? -eq 0 ];
 		then
-			proc=$(netstat -plant | grep $i | awk '{print $7}' | cut -d/ -f1,2)
-			prockill=$(netstat -plant | grep $i | awk '{print $7}' | cut -d/ -f1)
-			printf $info "\nThis process $proc is using port $i which is required for TAK server to operate. Do you want me to kill the process (y/n): " 
-			read choice
-			if [ $choice == "y" ];
-			then
-				sudo kill -15 $prockill
-
-			elif [ $choice == "yes" ];
-			then
-				sudo kill -15 $prockill
-			else
-				printf $danger "Please repeat the process once the port $i is not in use. Exiting now..\n" 
-				sleep 1
-				exit 0
-			fi
+			printf $warning "\nAnother process is still using port $i. Either wait or use 'sudo netstat -plant' to find it, then 'ps aux' to get the PID and 'kill PID' to stop it and try again\n"
+			exit 0
 		else
 			printf $success "\nPort $i is available.."
 		fi
@@ -149,7 +136,7 @@ netstat_check
 tak_folder
 if [ -d "tak" ] 
 then
-	printf $danger "Failed to remove the tak folder. You will need to do this as sudo: sudo rm -rf tak\n"
+	printf $danger "Failed to remove the tak folder. You will need to do this as sudo: sudo ./scripts/cleanup.sh\n"
 	exit 0
 fi
 checksum
@@ -170,7 +157,50 @@ then
 	rm -rf /tmp/takserver
 fi
 
-unzip $release.zip -d /tmp/takserver
+# unzip or 7z?
+if ! command -v unzip
+then
+	if ! command -v 7z
+	then
+		printf $danger "\n .----------------.  .----------------.  .----------------.  .----------------.\n" 
+		printf $danger "| .--------------. || .--------------. || .--------------. || .--------------. |\n"
+		printf $danger "| |  _______     | || |  _________   | || |  _________   | || | ____    ____ | |\n"
+		printf $danger "| | |_   __ \    | || | |  _   _  |  | || | |_   ___  |  | || ||_   \  /   _|| |\n"
+		printf $danger "| |   | |__) |   | || | |_/ | | \_|  | || |   | |_  \_|  | || |  |   \/   |  | |\n"
+		printf $danger "| |   |  __ /    | || |     | |      | || |   |  _|      | || |  | |\  /| |  | |\n"
+		printf $danger "| |  _| |  \ \_  | || |    _| |_     | || |  _| |_       | || | _| |_\/_| |_ | |\n"
+		printf $danger "| | |____| |___| | || |   |_____|    | || | |_____|      | || ||_____||_____|| |\n"
+		printf $danger "| |              | || |              | || |              | || |              | |\n"
+		printf $danger "| '--------------' || '--------------' || '--------------' || '--------------' |\n"
+		printf $danger " '----------------'  '----------------'  '----------------'  '----------------' \n"
+		printf $danger "You require either unzip OR 7z to decompress the TAK release\n"
+		printf $danger "https://github.com/Cloud-RF/tak-server/blob/main/README.md\n"
+		exit 1
+	else
+		7z x $release.zip -o/tmp/takserver
+	fi
+else
+	unzip $release.zip -d /tmp/takserver
+fi
+
+if [ ! -d "/tmp/takserver/$release/tak" ] 
+then
+	printf $danger "\n .----------------.  .----------------.  .----------------.  .----------------.\n" 
+	printf $danger "| .--------------. || .--------------. || .--------------. || .--------------. |\n"
+	printf $danger "| |  _______     | || |  _________   | || |  _________   | || | ____    ____ | |\n"
+	printf $danger "| | |_   __ \    | || | |  _   _  |  | || | |_   ___  |  | || ||_   \  /   _|| |\n"
+	printf $danger "| |   | |__) |   | || | |_/ | | \_|  | || |   | |_  \_|  | || |  |   \/   |  | |\n"
+	printf $danger "| |   |  __ /    | || |     | |      | || |   |  _|      | || |  | |\  /| |  | |\n"
+	printf $danger "| |  _| |  \ \_  | || |    _| |_     | || |  _| |_       | || | _| |_\/_| |_ | |\n"
+	printf $danger "| | |____| |___| | || |   |_____|    | || | |_____|      | || ||_____||_____|| |\n"
+	printf $danger "| |              | || |              | || |              | || |              | |\n"
+	printf $danger "| '--------------' || '--------------' || '--------------' || '--------------' |\n"
+	printf $danger " '----------------'  '----------------'  '----------------'  '----------------' \n"
+	printf $danger "A decompressed folder was NOT found at /tmp/takserver/$release\n"
+	printf $danger "https://github.com/Cloud-RF/tak-server/blob/main/README.md\n"
+	exit 1
+fi
+
 mv -f /tmp/takserver/$release/tak ./
 chown -R $USER:$USER tak
 clear
@@ -180,12 +210,12 @@ cp ./postgresql1.conf ./tak/postgresql.conf
 cp ./scripts/takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
 cp ./CoreConfig.xml ./tak/CoreConfig.xml
 
-## Set admin username and password
+## Set admin username and password and ensure it meets validation criteria
 user="admin"
 pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | head -n 1)
 password=$pwd"Meh1!"
 
-## Set postgres password
+## Set postgres password and ensure it meets validation criteria
 pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | head -n 1)"
 pgpassword=$pgpwd"Meh1!"
 
@@ -197,7 +227,7 @@ sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
 sed -i "s/HOSTIP/$IP/g" tak/CoreConfig.xml
 
 ## Set variables for generating CA and client certs
-printf $warning "SSL setup. Hit enter (x4) to accept the defaults:\n"
+printf $warning "SSL setup. Hit enter (x3) to accept the defaults:\n"
 read -p "State (for cert generation). Default [state] :" state
 read -p "City (for cert generation). Default [city]:" city
 read -p "Organizational Unit (for cert generation). Default [org]:" orgunit
@@ -239,7 +269,7 @@ while :
 do
 	sleep 10 # let the PG stderr messages conclude...
 	printf $warning "------------CERTIFICATE GENERATION--------------\n"
-	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeRootCa.sh"
+	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeRootCa.sh --ca-name LOL"
 	if [ $? -eq 0 ];
 	then
 		$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh server takserver"
@@ -274,7 +304,7 @@ cd ../../
 ./scripts/certDP.sh $IP user2
 
 
-printf $info "Waiting for TAK server to go live. This should take < 30s with an AMD64, ~1min on a ARM64 (Pi)\n"
+printf $info "Waiting for TAK server to go live. This should take <1m with an AMD64, ~2min on a ARM64 (Pi)\n"
 docker-compose start tak
 
 ### Checks if java is fully initialised
@@ -302,16 +332,17 @@ do
 			sleep 5
 		fi
 	else
-		printf $info "No joy with DB, will retry in 10...\n" 
+		printf $info "No joy with DB, will retry in 10s. If this loops more than 6 times go and get some fresh air...\n" 
 	fi
 done
 
 cp ./tak/certs/files/$user.p12 .
 
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
+clear
+docker container ls
 
-printf $success "\n\nIf the database was updated OK (eg. Successfully applied 64 update(s)), \n"
-printf $warning "Import the $user.p12 certificate from this folder to your browser as per the README.md file\n"
+printf $warning "\n\nImport the $user.p12 certificate from this folder to your browser as per the README.md file\n"
 printf $success "Login at https://$IP:8443 with your admin account. No need to run the /setup step as this has been done.\n" 
 printf $info "Certificates and *CERT DATA PACKAGES* are in tak/certs/files \n\n" 
 printf $success "Setup script sponsored by CloudRF.com - \"The API for RF\"\n\n"
@@ -321,4 +352,6 @@ printf $danger "Admin password: $password\n" # Web interface default random pass
 printf $danger "Postgresql password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $warning "MAKE A NOTE OF YOUR PASSWORDS. THEY WON'T BE SHOWN AGAIN.\n"
-printf $info "To start the containers next time you login, execute from this folder: $DOCKER_COMPOSE up\n"
+printf $info "Docker containers should automatically start with the docker service from now on.\n"
+
+ 

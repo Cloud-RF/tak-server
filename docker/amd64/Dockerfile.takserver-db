@@ -5,4 +5,4 @@ FROM postgres:14.4
 RUN apt-get update && apt install -y postgresql-14-postgis-3
 
 
-ENTRYPOINT ["/opt/tak/db-utils/configureInDocker.sh"]
+ENTRYPOINT ["/bin/bash", "-c", "/opt/tak/db-utils/configureInDocker.sh"]

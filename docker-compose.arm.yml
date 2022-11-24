@@ -13,7 +13,8 @@ services:
         aliases:
           - tak-database
     ports:
-      - 5432:5432 
+      - 5432:5432
+    restart: always 
   tak:
     build:
       context: .
@@ -33,6 +34,7 @@ services:
       tak:
     depends_on:
       - db
+    restart: always
 volumes:
   db_data:
 networks:

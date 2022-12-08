@@ -47,7 +47,7 @@ The size blew up after 4.6 due to 900GB of DTED which was added to webtak.
 ## Installation
 Fetch the dependencies, then the git repo and cd into the directory
 
-    apt-get install docker-compose unzip net-tools
+    apt-get install docker-compose unzip zip net-tools
     git clone https://github.com/Cloud-RF/tak-server.git
     cd tak-server
 

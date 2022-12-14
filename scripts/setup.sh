@@ -41,7 +41,7 @@ netstat_check () {
 	
 	for i in ${ports[@]};
 	do
-		netstat -lant | grep $i
+		netstat -lant | grep -w $i
 		if [ $? -eq 0 ];
 		then
 			printf $warning "\nAnother process is still using port $i. Either wait or use 'sudo netstat -plant' to find it, then 'ps aux' to get the PID and 'kill PID' to stop it and try again\n"

@@ -203,7 +203,6 @@ fi
 
 mv -f /tmp/takserver/$release/tak ./
 chown -R $USER:$USER tak
-clear
 
 cp ./scripts/configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
 cp ./postgresql1.conf ./tak/postgresql.conf
@@ -305,7 +304,7 @@ cd ../../
 
 
 printf $info "Waiting for TAK server to go live. This should take <1m with an AMD64, ~2min on a ARM64 (Pi)\n"
-docker-compose start tak
+$DOCKER_COMPOSE start tak
 
 ### Checks if java is fully initialised
 while :
@@ -339,7 +338,6 @@ done
 cp ./tak/certs/files/$user.p12 .
 
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
-clear
 docker container ls
 
 printf $warning "\n\nImport the $user.p12 certificate from this folder to your browser as per the README.md file\n"

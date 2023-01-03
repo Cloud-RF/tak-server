@@ -21,7 +21,7 @@ fi
 
 printf $success "\nTAK server setup script sponsored by CloudRF.com - \"The API for RF\"\n"
 printf $info "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
-printf $warning "\nYou should install this as a user. Elevated privileges (sudo) are only required to clean up a previous install eg. sudo ./scripts/cleanup.sh\n"
+# printf $warning "\nYou should install this as a user. Elevated privileges (sudo) are only required to clean up a previous install eg. sudo ./scripts/cleanup.sh\n"
 
 arch=$(dpkg --print-architecture)
 
@@ -347,9 +347,9 @@ printf $success "Setup script sponsored by CloudRF.com - \"The API for RF\"\n\n"
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $danger "Admin user name: $user\n" # Web interface default user name
 printf $danger "Admin password: $password\n" # Web interface default random password created during setup
-printf $danger "Postgresql password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
+printf $danger "PostgreSQL password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $warning "MAKE A NOTE OF YOUR PASSWORDS. THEY WON'T BE SHOWN AGAIN.\n"
-printf $info "Docker containers should automatically start with the docker service from now on.\n"
+printf $info "Docker containers should automatically start with the Docker service from now on.\n"
 
  

@@ -18,14 +18,14 @@ This script will stop the TAK Server container, remove the mapped database volum
 WARNING: If you have data in an existing TAK database container it will be lost.
 
 ## How do I make a new certificate for my EUDs?
-Enter the docker container and run the makeCert.sh script as follows.
 
-    docker exec -it tak-server-tak-1 bash
-    cd /opt/tak/certs
-    /makeCert.sh client EUD1
-    exit
+You can generate certificates making use of the command below which runs the `makeCert.sh` script:
 
-You can collect your EUD1.p12 file from ./tak/certs/files/
+```bash
+docker exec -it -w /opt/tak/certs tak-server-tak-1 ./makeCert.sh client EUD1
+```
+
+You can collect your `EUD1.p12` file from `./tak/certs/files/`.
 
 ## Why does my EUD not connect?
 Ensure you have created EUD certificates and have configured the following properly on your ATAK server settings:

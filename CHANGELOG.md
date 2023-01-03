@@ -1,5 +1,10 @@
 # CloudRF TAK Server Wrapper Changelog
 
+## Upcoming
+
+- Check for active ports during setup no longer false flagging ephemeral ports.
+- Changelog converted to markdown.
+
 ## 24/11/2022 - 4.7 REL 20
 
 - Added 7zip support.

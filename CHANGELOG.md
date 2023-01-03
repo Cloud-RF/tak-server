@@ -4,6 +4,7 @@
 
 - Check for active ports during setup no longer false flagging ephemeral ports.
 - Changelog converted to markdown.
+- Improvements to README.
 
 ## 24/11/2022 - 4.7 REL 20
 

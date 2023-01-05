@@ -356,4 +356,4 @@ printf $danger "PostgreSQL password: $pgpassword\n\n" # PostgreSQL password rand
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $warning "MAKE A NOTE OF YOUR PASSWORDS. THEY WON'T BE SHOWN AGAIN.\n"
 printf $warning "You have a database listening on TCP 5432 which requires a login. You should still block this port with a firewall\n"
-printf $info "Docker containers should automatically start with the docker service from now on.\n"
+printf $info "Docker containers should automatically start with the Docker service from now on.\n"

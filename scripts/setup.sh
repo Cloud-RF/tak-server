@@ -157,6 +157,13 @@ then
 	rm -rf /tmp/takserver
 fi
 
+# ifconfig?
+if ! command -v ifconfig
+then
+	printf $danger "\nRTFM: You need net-tools: apt-get install net-tools\n"
+	exit 1
+fi
+
 # unzip or 7z?
 if ! command -v unzip
 then
@@ -220,8 +227,9 @@ pgpassword=$pgpwd"Meh1!"
 
 # get IP
 NIC=$(route | grep default | awk '{print $8}')
-IP=$(ip addr show $NIC | grep "inet " | awk '{print $2}' | cut -d "/" -f1)
+IP=$(ip addr show $NIC | grep -m 1 "inet " | awk '{print $2}' | cut -d "/" -f1)
 
+printf $info "\nProceeding with IP address: $IP\n"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
 sed -i "s/HOSTIP/$IP/g" tak/CoreConfig.xml
 
@@ -260,7 +268,7 @@ ORGANIZATIONAL_UNIT=$orgunit
 EOF
 
 ### Runs through setup, starts both containers
-$DOCKER_COMPOSE --file $DOCKERFILE up  --force-recreate &
+$DOCKER_COMPOSE --file $DOCKERFILE up  --force-recreate -d
 
 ### Checking if the container is set up and ready to set the certificates
 
@@ -302,36 +310,33 @@ cd ../../
 ./scripts/certDP.sh $IP user1
 ./scripts/certDP.sh $IP user2
 
-
 printf $info "Waiting for TAK server to go live. This should take <1m with an AMD64, ~2min on a ARM64 (Pi)\n"
 $DOCKER_COMPOSE start tak
+sleep 10
 
 ### Checks if java is fully initialised
 while :
 do
 	sleep 10
-	# docker-compose exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
 	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 	if [ $? -eq 0 ];
 	then
-		# docker-compose exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 		$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
 		if [ $? -eq 0 ]; 
 		then
-			# docker-compose exec tak bash -c "cd /opt/tak/ && java -jar utils/UserManager.jar certmod -A certs/files/$user.pem"
 			$DOCKER_COMPOSE exec tak bash -c "java -jar /opt/tak/db-utils/SchemaManager.jar upgrade"
 			if [ $? -eq 0 ];
 			then
 
 				break
 			else
-				sleep 5
+				sleep 10
 			fi
 		else
-			sleep 5
+			sleep 10
 		fi
 	else
-		printf $info "No joy with DB, will retry in 10s. If this loops more than 6 times go and get some fresh air...\n" 
+		printf $info "No joy with DB at $IP, will retry in 10s. If this loops more than 6 times go and get some fresh air...\n" 
 	fi
 done
 
@@ -350,6 +355,5 @@ printf $danger "Admin password: $password\n" # Web interface default random pass
 printf $danger "PostgreSQL password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $warning "MAKE A NOTE OF YOUR PASSWORDS. THEY WON'T BE SHOWN AGAIN.\n"
-printf $info "Docker containers should automatically start with the Docker service from now on.\n"
-
- 
+printf $warning "You have a database listening on TCP 5432 which requires a login. You should still block this port with a firewall\n"
+printf $info "Docker containers should automatically start with the docker service from now on.\n"

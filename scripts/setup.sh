@@ -21,7 +21,7 @@ fi
 
 printf $success "\nTAK server setup script sponsored by CloudRF.com - \"The API for RF\"\n"
 printf $info "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
-printf $warning "\nYou should install this as a user. Elevated privileges (sudo) are only required to clean up a previous install eg. sudo ./scripts/cleanup.sh\n"
+# printf $warning "\nYou should install this as a user. Elevated privileges (sudo) are only required to clean up a previous install eg. sudo ./scripts/cleanup.sh\n"
 
 arch=$(dpkg --print-architecture)
 
@@ -41,7 +41,7 @@ netstat_check () {
 	
 	for i in ${ports[@]};
 	do
-		netstat -lant | grep $i
+		netstat -lant | grep -w $i
 		if [ $? -eq 0 ];
 		then
 			printf $warning "\nAnother process is still using port $i. Either wait or use 'sudo netstat -plant' to find it, then 'ps aux' to get the PID and 'kill PID' to stop it and try again\n"
@@ -210,7 +210,6 @@ fi
 
 mv -f /tmp/takserver/$release/tak ./
 chown -R $USER:$USER tak
-clear
 
 cp ./scripts/configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
 cp ./postgresql1.conf ./tak/postgresql.conf
@@ -311,7 +310,6 @@ cd ../../
 ./scripts/certDP.sh $IP user1
 ./scripts/certDP.sh $IP user2
 
-
 printf $info "Waiting for TAK server to go live. This should take <1m with an AMD64, ~2min on a ARM64 (Pi)\n"
 $DOCKER_COMPOSE start tak
 sleep 10
@@ -345,7 +343,6 @@ done
 cp ./tak/certs/files/$user.p12 .
 
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
-clear
 docker container ls
 
 printf $warning "\n\nImport the $user.p12 certificate from this folder to your browser as per the README.md file\n"
@@ -355,10 +352,8 @@ printf $success "Setup script sponsored by CloudRF.com - \"The API for RF\"\n\n"
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $danger "Admin user name: $user\n" # Web interface default user name
 printf $danger "Admin password: $password\n" # Web interface default random password created during setup
-printf $danger "Postgresql password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
+printf $danger "PostgreSQL password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $warning "MAKE A NOTE OF YOUR PASSWORDS. THEY WON'T BE SHOWN AGAIN.\n"
 printf $warning "You have a database listening on TCP 5432 which requires a login. You should still block this port with a firewall\n"
-printf $info "Docker containers should automatically start with the docker service from now on.\n"
-
- 
+printf $info "Docker containers should automatically start with the Docker service from now on.\n"

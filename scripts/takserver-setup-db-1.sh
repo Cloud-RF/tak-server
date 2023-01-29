@@ -17,7 +17,7 @@
 # if [ "x$DB_EXISTS" != "x" ]; then
 #   sed -i 's/127.0.0.1\/32/0.0.0.0\/0/g' /opt/tak/db-utils/pg_hba.conf
 #   cp /opt/tak/db-utils/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf
-#   su - postgres -c "/usr/lib/postgresql/14/bin/pg_ctl -D /var/lib/postgresql/data -l logfile restart -o '-c max_connections=2100 -c shared_buffers=2560MB'"
+#   su - postgres -c "/usr/lib/postgresql/15/bin/pg_ctl -D /var/lib/postgresql/data -l logfile restart -o '-c max_connections=2100 -c shared_buffers=2560MB'"
 #   exit 0
 # fi
 
@@ -52,8 +52,8 @@ fi
 DB_INIT=""
 # Ensure PostgreSQL is initialized.
 
-if [ -x /usr/lib/postgresql/14/bin/pg_ctl ]; then
-    DB_INIT="/usr/lib/postgresql/14/bin/pg_ctl initdb"
+if [ -x /usr/lib/postgresql/15/bin/pg_ctl ]; then
+    DB_INIT="/usr/lib/postgresql/15/bin/pg_ctl initdb"
 elif [ -x /usr/bin/postgresql-setup ]; then
     DB_INIT="/usr/bin/postgresql-setup initdb"
 else

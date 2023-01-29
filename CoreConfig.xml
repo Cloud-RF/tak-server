@@ -17,7 +17,7 @@
     <submission ignoreStaleMessages="false" validateXml="false"/>
     <subscription reloadPersistent="false"/>
     <repository enable="true" numDbConnections="16" connectionPoolAutoSize="true" primaryKeyBatchSize="500" insertionBatchSize="500" archive="false">
-        <connection url="jdbc:postgresql://HOSTIP:5432/cot" username="martiuser" password="A4qs6s5MsZ06VasUmE!"/>
+        <connection url="jdbc:postgresql://tak-database:5432/cot" username="martiuser" password="A4qs6s5MsZ06VasUmE!"/>
     </repository>
     <repeater enable="true" periodMillis="3000" staleDelayMillis="15000">
         <repeatableType initiate-test="/event/detail/emergency[@type='911 Alert']" cancel-test="/event/detail/emergency[@cancel='true']" _name="911"/>

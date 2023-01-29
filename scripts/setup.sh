@@ -214,6 +214,8 @@ chown -R $USER:$USER tak
 cp ./scripts/configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
 cp ./postgresql1.conf ./tak/postgresql.conf
 cp ./scripts/takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
+
+# This config uses a docker alias of postgresql://tak-database:5432/
 cp ./CoreConfig.xml ./tak/CoreConfig.xml
 
 ## Set admin username and password and ensure it meets validation criteria
@@ -231,7 +233,17 @@ IP=$(ip addr show $NIC | grep -m 1 "inet " | awk '{print $2}' | cut -d "/" -f1)
 
 printf $info "\nProceeding with IP address: $IP\n"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml
+# Replaces HOSTIP for rate limiter and Fed server. Database URL is a docker alias of tak-database
 sed -i "s/HOSTIP/$IP/g" tak/CoreConfig.xml
+
+# Replaces takserver.jks with $IP.jks
+sed -i "s/takserver.jks/$IP.jks/g" tak/CoreConfig.xml
+
+# Better memory allocation:
+# By default TAK server allocates memory based upon the *total* on a machine. 
+# In the real world, people not on a gov budget use a server for more than one thing.
+# Instead we allocate memory based upon the available memory so this still scales, but you can run it on a smaller budget
+sed -i "s/MemTotal/MemFree/g" tak/setenv.sh
 
 ## Set variables for generating CA and client certs
 printf $warning "SSL setup. Hit enter (x3) to accept the defaults:\n"
@@ -276,10 +288,10 @@ while :
 do
 	sleep 10 # let the PG stderr messages conclude...
 	printf $warning "------------CERTIFICATE GENERATION--------------\n"
-	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeRootCa.sh --ca-name LOL"
+	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeRootCa.sh --ca-name CRFtakserver"
 	if [ $? -eq 0 ];
 	then
-		$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh server takserver"
+		$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh server $IP"
 		if [ $? -eq 0 ];
 		then
 			$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client $user"	
@@ -304,6 +316,7 @@ printf $info "Creating certificates for 2 users in tak/certs/files for a quick s
 cd tak/certs
 ./makeCert.sh client user1
 ./makeCert.sh client user2
+
 
 # Make 2 data packages
 cd ../../

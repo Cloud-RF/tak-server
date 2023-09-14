@@ -158,6 +158,7 @@ then
 fi
 
 # ifconfig?
+export PATH=$PATH:/sbin
 if ! command -v ifconfig
 then
 	printf $danger "\nRTFM: You need net-tools: apt-get install net-tools\n"

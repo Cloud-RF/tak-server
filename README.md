@@ -64,7 +64,7 @@ git clone https://github.com/Cloud-RF/tak-server.git
 cd tak-server
 ```
 
-### Set up Docker's apt repository
+### Setup Docker's apt repository
 
 First, set up Docker's apt repository. These steps are already completed on the WarDragon. Open a terminal and run the following commands:
 

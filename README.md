@@ -51,7 +51,7 @@ The size blew up after `4.6` due to `900GB` of DTED which was added to WebTAK.
 
 Please use the below link to see a short video on a complete setup of TAK Server.
 
-[TAK Server install (Docker)](https://www.youtube.com/watch?v=h4PA9NN-cDk)
+[TAK Server install (Docker)](https://youtu.be/fa7U4aWLyw4)
 
 ## Prerequisites
 

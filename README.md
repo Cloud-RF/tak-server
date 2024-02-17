@@ -251,6 +251,15 @@ You can find ready made data packages in the `tak/certs/files` directory. You ne
 
 This will add a server, certificates and a user account. You will still need to create this user with the matching name for example, `user1`, in your TAK server user management dashboard and assign them to a common group.
 
+## Federated TAK server
+
+If you would like to federate TAK servers you will need to exchange ca.pem files between servers. On this docker setup, I find that I have to manually import the ca.pem from the command line as the webui seems unable to add 
+the it to the fed truststore. Typically the fed-truststore is located in the project directory at tak-server/tak/certs/files. You'll likely find the ca.pem in that location as well, location may vary depending on install method.
+
+```bash
+keytool -importcert -file ca.pem -keystore fed-truststore.jks -alias "tak"
+```
+
 ### Transferring Your ZIP files Via HTTP
 
 If you like to live dangerously, you can run a script to serve the `.zip` files on TCP port `12345`, for example, http://0.0.0.0:12345. This launches a mini Python web server and serves the content of the `share` folder which will contain your certificates. Note that sharing certificates via insecure protocols is not secure. 

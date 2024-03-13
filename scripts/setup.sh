@@ -229,7 +229,7 @@ pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | hea
 pgpassword=$pgpwd"Meh1!"
 
 # get IP
-NIC=$(route | grep default | awk '{print $8}')
+NIC=$(route | grep default | awk '{print $8}' | head -n 1)
 IP=$(ip addr show $NIC | grep -m 1 "inet " | awk '{print $2}' | cut -d "/" -f1)
 
 printf $info "\nProceeding with IP address: $IP\n"

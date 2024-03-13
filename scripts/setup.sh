@@ -229,7 +229,7 @@ pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | hea
 pgpassword=$pgpwd"Meh1!"
 
 # get IP
-NIC=$(route | grep default | awk '{print $8}')
+NIC=$(route | grep default | awk '{print $8}' | head -n 1)
 IP=$(ip addr show $NIC | grep -m 1 "inet " | awk '{print $2}' | cut -d "/" -f1)
 
 printf $info "\nProceeding with IP address: $IP\n"
@@ -243,14 +243,20 @@ sed -i "s/takserver.jks/$IP.jks/g" tak/CoreConfig.xml
 # Better memory allocation:
 # By default TAK server allocates memory based upon the *total* on a machine. 
 # In the real world, people not on a gov budget use a server for more than one thing.
-# Instead we allocate memory based upon the available memory so this still scales, but you can run it on a smaller budget
-sed -i "s/MemTotal/MemFree/g" tak/setenv.sh
+# Instead we allocate a fixed amount of memory
+read -p "Enter the amount of memory to allocate, in kB. Default [8000000]: " mem
+if [ -z "$mem" ];
+then
+	mem="8000000"
+fi
+
+sed -i "s%\`awk '/MemTotal/ {print \$2}' /proc/meminfo\`%$mem%g" tak/setenv.sh
 
 ## Set variables for generating CA and client certs
 printf $warning "SSL setup. Hit enter (x3) to accept the defaults:\n"
-read -p "State (for cert generation). Default [state] :" state
-read -p "City (for cert generation). Default [city]:" city
-read -p "Organizational Unit (for cert generation). Default [org]:" orgunit
+read -p "State (for cert generation). Default [state] : " state
+read -p "City (for cert generation). Default [city]: " city
+read -p "Organizational Unit (for cert generation). Default [org]: " orgunit
 
 if [ -z "$state" ];
 then
@@ -326,7 +332,7 @@ cd ../../
 
 printf $info "Waiting for TAK server to go live. This should take <1m with an AMD64, ~2min on a ARM64 (Pi)\n"
 $DOCKER_COMPOSE start tak
-sleep 360
+sleep 10
 
 ### Checks if java is fully initialised
 while :

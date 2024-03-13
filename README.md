@@ -29,6 +29,7 @@ The integrity of the release will be checked at setup against the MD5/SHA1 check
 | `takserver-docker-4.7-RELEASE-20.zip` | `759MB` | `1cb0208c62d4551f1c3185d00a5fd8bf` | `f427ae3e860fddb8907047f157ada5764334c48d` |
 | `takserver-docker-4.8-RELEASE-31.zip` | `772MB` | `c07f01d74960287bfc7dc08ecd6cbc3a` | `387ea4f593763d3adcfda5128a89dda4fd82e937` |
 | `takserver-docker-4.10-RELEASE-50.zip`| `528MB` | `5068d5fd70cbc9ecf53f2259dc9383f7` | `177ed55a66ce8126424937dd3bc7375feb12d3eb` |
+| `takserver-docker-5.0-RELEASE-58.zip`| `660MB` | `2c80c289f67de4878ca596bf479ef698` | `944052011887101fd1019b3019f5c9583a1683f3` |
 
 ## Requirements
 

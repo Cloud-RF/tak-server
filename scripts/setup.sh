@@ -326,7 +326,7 @@ cd ../../
 
 printf $info "Waiting for TAK server to go live. This should take <1m with an AMD64, ~2min on a ARM64 (Pi)\n"
 $DOCKER_COMPOSE start tak
-sleep 10
+sleep 360
 
 ### Checks if java is fully initialised
 while :

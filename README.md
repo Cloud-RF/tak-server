@@ -4,19 +4,10 @@
 
 This is a Docker wrapper for an official 'OG' TAK server from [TAK Product Center](https://tak.gov/) intended for beginners. It will give you a turnkey TAK server with SSL which works with ATAK, iTAK, WinTAK.
 
-The key improvements are:
-
- - Automatic configuration.
- - Certificate generation.
- - Secure password generation.
- - Updates PostgreSQL 10 to PostgreSQL 14.
- - Updates Debian 8 to Debian 11.
 
 ## IMPORTANT: Download the Official TAK Release
 
 Before you can build this, you must download a **TAKSERVER-DOCKER-X.X-RELEASE**.
-
-The scripts in this repository **have not** been checked against the **HARDENED** Docker release (`TAKSERVER-DOCKER-HARDENED-X.X-RELEASE`), so please **DO NOT** use them with that version of TAK Server.
 
 Releases are now public at [https://tak.gov/products/tak-server](https://tak.gov/products/tak-server)
 
@@ -28,23 +19,23 @@ The integrity of the release will be checked at setup against the MD5/SHA1 check
 
 ## TAK Server Release Checksums
 
-The size blew up after `4.6` due to `900GB` of DTED which was added to WebTAK.
+*The size blew up after `4.6` due to `900GB` of DTED which was added to WebTAK and then shrank after 4.10 with a refactor*
 
 | Release Filename                      | Bytes       | MD5 Checksum                       | SHA1 Checksum                              |
 | ------------------------------------- | ----------- | ---------------------------------- | ------------------------------------------ |
-| `takserver-docker-4.6-RELEASE-26.zip` | `462381384` | `dc63cb315f950025707dbccf05bdf183` | `7ca58221b8d35d40df906144c5834e6d9fa85b47` |
-| `takserver-docker-4.7-RELEASE-4.zip`  | `759385093` | `5b011b74dd5f598fa21ce8d737e8b3e6` | `b688359659a05204202c21458132a64ec1ba0184` |
-| `takserver-docker-4.7-RELEASE-18.zip` | `759410768` | `44b6fa8d7795b56feda08ea7ab793a3e` | `cd56406d3539030ab9b9b3fbae08b56b352b9b53` |
-| `takserver-docker-4.7-RELEASE-20.zip` | `759389907` | `1cb0208c62d4551f1c3185d00a5fd8bf` | `f427ae3e860fddb8907047f157ada5764334c48d` |
-| `takserver-docker-4.8-RELEASE-31.zip` | `772606000` | `c07f01d74960287bfc7dc08ecd6cbc3a` | `387ea4f593763d3adcfda5128a89dda4fd82e937` |
-| `takserver-docker-4.10-RELEASE-50.zip`| `528MB`     | `5068d5fd70cbc9ecf53f2259dc9383f7` | `177ed55a66ce8126424937dd3bc7375feb12d3eb` |
+| `takserver-docker-4.6-RELEASE-26.zip` | `462MB` | `dc63cb315f950025707dbccf05bdf183` | `7ca58221b8d35d40df906144c5834e6d9fa85b47` |
+| `takserver-docker-4.7-RELEASE-4.zip`  | `759MB` | `5b011b74dd5f598fa21ce8d737e8b3e6` | `b688359659a05204202c21458132a64ec1ba0184` |
+| `takserver-docker-4.7-RELEASE-18.zip` | `759MB` | `44b6fa8d7795b56feda08ea7ab793a3e` | `cd56406d3539030ab9b9b3fbae08b56b352b9b53` |
+| `takserver-docker-4.7-RELEASE-20.zip` | `759MB` | `1cb0208c62d4551f1c3185d00a5fd8bf` | `f427ae3e860fddb8907047f157ada5764334c48d` |
+| `takserver-docker-4.8-RELEASE-31.zip` | `772MB` | `c07f01d74960287bfc7dc08ecd6cbc3a` | `387ea4f593763d3adcfda5128a89dda4fd82e937` |
+| `takserver-docker-4.10-RELEASE-50.zip`| `528MB` | `5068d5fd70cbc9ecf53f2259dc9383f7` | `177ed55a66ce8126424937dd3bc7375feb12d3eb` |
 
 ## Requirements
 
 - Debian-based operating system, such as Debian or Ubuntu
 - Docker with `compose` (https://docs.docker.com/engine/install/ubuntu/ or https://docs.docker.com/engine/install/debian/)
 - A TAK server release
-- 2GB memory
+- 4GB memory
 - Network connection
 - `unzip` and `netstat` utilities
 
@@ -63,6 +54,30 @@ sudo apt update
 sudo apt install net-tools unzip zip
 git clone https://github.com/Cloud-RF/tak-server.git
 cd tak-server
+```
+
+### Setup Docker's apt repository
+
+First, set up Docker's apt repository. These steps are already completed on the WarDragon. Open a terminal and run the following commands:
+
+```bash
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+# Install the Docker packages.
+# To install the latest version, run:
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 ### Docker Security
@@ -227,6 +242,15 @@ If you've never setup ATAK with a server before you need server and user certifi
 You can find ready made data packages in the `tak/certs/files` directory. You need to copy these to your device's SD card then import the `.zip` into ATAK / iTAK with the "Import" function and choose "Local SD".
 
 This will add a server, certificates and a user account. You will still need to create this user with the matching name for example, `user1`, in your TAK server user management dashboard and assign them to a common group.
+
+## Federated TAK server
+
+If you would like to federate TAK servers you will need to exchange ca.pem files between servers. On this docker setup, I find that I have to manually import the ca.pem from the command line as the webui seems unable to add 
+the it to the fed truststore. Typically the fed-truststore is located in the project directory at tak-server/tak/certs/files. You'll likely find the ca.pem in that location as well, location may vary depending on install method.
+
+```bash
+keytool -importcert -file ca.pem -keystore fed-truststore.jks -alias "tak"
+```
 
 ### Transferring Your ZIP files Via HTTP
 

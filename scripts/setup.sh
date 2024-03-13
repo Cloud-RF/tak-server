@@ -243,14 +243,20 @@ sed -i "s/takserver.jks/$IP.jks/g" tak/CoreConfig.xml
 # Better memory allocation:
 # By default TAK server allocates memory based upon the *total* on a machine. 
 # In the real world, people not on a gov budget use a server for more than one thing.
-# Instead we allocate memory based upon the available memory so this still scales, but you can run it on a smaller budget
-sed -i "s/MemTotal/MemFree/g" tak/setenv.sh
+# Instead we allocate a fixed amount of memory
+read -p "Enter the amount of memory to allocate, in kB. Default [8000000]: " mem
+if [ -z "$mem" ];
+then
+	mem="8000000"
+fi
+
+sed -i "s%\`awk '/MemTotal/ {print \$2}' /proc/meminfo\`%$mem%g" tak/setenv.sh
 
 ## Set variables for generating CA and client certs
 printf $warning "SSL setup. Hit enter (x3) to accept the defaults:\n"
-read -p "State (for cert generation). Default [state] :" state
-read -p "City (for cert generation). Default [city]:" city
-read -p "Organizational Unit (for cert generation). Default [org]:" orgunit
+read -p "State (for cert generation). Default [state] : " state
+read -p "City (for cert generation). Default [city]: " city
+read -p "Organizational Unit (for cert generation). Default [org]: " orgunit
 
 if [ -z "$state" ];
 then

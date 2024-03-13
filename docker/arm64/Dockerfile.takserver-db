@@ -1,6 +1,6 @@
-FROM postgres:15
-# this is slow - updates all packages
+FROM postgres:15.1
 
+# this is slow - updates all packages
 RUN apt-get update && apt install -y postgresql-15-postgis-3
 
 ENTRYPOINT ["/opt/tak/db-utils/configureInDocker.sh"]

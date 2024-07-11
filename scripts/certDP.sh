@@ -38,9 +38,9 @@ echo "    <Parameter name=\"name\" value=\"$USER DP\"/>" >> manifest.xml
 echo "    <Parameter name=\"onReceiveDelete\" value=\"true\"/>" >> manifest.xml
 echo "  </Configuration>" >> manifest.xml
 echo "  <Contents>" >> manifest.xml
-echo "    <Content ignore=\"false\" zipEntry=\"server.pref\"/>" >> manifest.xml
-echo "    <Content ignore=\"false\" zipEntry=\"$IP.p12\"/>" >> manifest.xml
-echo "    <Content ignore=\"false\" zipEntry=\"$USER.p12\"/>" >> manifest.xml
+echo "    <Content ignore=\"false\" zipEntry=\"certs\\server.pref\"/>" >> manifest.xml
+echo "    <Content ignore=\"false\" zipEntry=\"certs\\$IP.p12\"/>" >> manifest.xml
+echo "    <Content ignore=\"false\" zipEntry=\"certs\\$USER.p12\"/>" >> manifest.xml
 echo "  </Contents>" >> manifest.xml
 echo "</MissionPackageManifest>" >> manifest.xml
 

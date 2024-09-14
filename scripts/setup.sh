@@ -253,10 +253,16 @@ fi
 sed -i "s%\`awk '/MemTotal/ {print \$2}' /proc/meminfo\`%$mem%g" tak/setenv.sh
 
 ## Set variables for generating CA and client certs
-printf $warning "SSL setup. Hit enter (x3) to accept the defaults:\n"
+printf $warning "SSL setup. Hit enter (x4) to accept the defaults:\n"
+read -p "Country (for cert generation). Default [US] : " country
 read -p "State (for cert generation). Default [state] : " state
 read -p "City (for cert generation). Default [city]: " city
 read -p "Organizational Unit (for cert generation). Default [org]: " orgunit
+
+if [ -z "$country" ];
+then
+	country="US"
+fi
 
 if [ -z "$state" ];
 then
@@ -274,6 +280,7 @@ then
 fi
 
 # Update local env
+export COUNTRY=$country
 export STATE=$state
 export CITY=$city
 export ORGANIZATIONAL_UNIT=$orgunit
@@ -281,10 +288,14 @@ export ORGANIZATIONAL_UNIT=$orgunit
 
 # Writes variables to a .env file for docker-compose
 cat << EOF > .env
+COUNTRY=$country
 STATE=$state
 CITY=$city
 ORGANIZATIONAL_UNIT=$orgunit
 EOF
+
+### Update cert-metadata.sh with configured country. Fallback to US if variable not set.
+sed -i -e 's/COUNTRY=US/COUNTRY=${COUNTRY:-US}/' $PWD/tak/certs/cert-metadata.sh
 
 ### Runs through setup, starts both containers
 $DOCKER_COMPOSE --file $DOCKERFILE up  --force-recreate -d

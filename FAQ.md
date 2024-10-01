@@ -52,7 +52,9 @@ Ensure the admin.p12 file is owned by you. Use the atakatak password when prompt
 
 ## How can I change the logo at the footer of the web page
 
-The logo can be changed **without** stopping or setting up the TAK Server again.
+The BBN logo can be changed **without** stopping or setting up the TAK Server again.
+
+*Since about 5.x this was removed but you can use this process to edit the HTML like Marti/menubar.html. See below*
 
 ![meh](img/banana.png "A banana")
 
@@ -64,6 +66,18 @@ sudo ./scripts/logo-replacement.sh /home/eric/banana.jpg
 ````
 
 The script will check for all dependencies required, and if not present, the script will attempt to install them for you. The dependencies needed are __*openJDK*__ (JAVA environment is required to be able to repack the jar correctly) and ImageMagick for conversion.
+
+## Edit the HTML
+WARNING: You may break your server. Use at your own risk:
+![meh](img/allyourtak.png "All your tak")
+
+The following command, run from inside the TAK container will extract HTML to a folder structure so you can edit it. Once done, copy back the modified file(s).
+
+    jar -xvf /opt/tak/takserver.war
+    (edit .html pages in Marti/...)
+    jar -uvf /opt/tak/takserver.war Marti/menubar.html
+
+Once copied over, reload your interface and enjoy :)
 
 ## How can I upload a data package to Marti sync?
 This is uber-secret.

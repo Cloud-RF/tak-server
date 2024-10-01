@@ -19,17 +19,13 @@ The integrity of the release will be checked at setup against the MD5/SHA1 check
 
 ## TAK Server Release Checksums
 
-*The size blew up after `4.6` due to `900GB` of DTED which was added to WebTAK and then shrank after 4.10 with a refactor*
-
 | Release Filename                      | Bytes       | MD5 Checksum                       | SHA1 Checksum                              |
 | ------------------------------------- | ----------- | ---------------------------------- | ------------------------------------------ |
-| `takserver-docker-4.6-RELEASE-26.zip` | `462MB` | `dc63cb315f950025707dbccf05bdf183` | `7ca58221b8d35d40df906144c5834e6d9fa85b47` |
-| `takserver-docker-4.7-RELEASE-4.zip`  | `759MB` | `5b011b74dd5f598fa21ce8d737e8b3e6` | `b688359659a05204202c21458132a64ec1ba0184` |
-| `takserver-docker-4.7-RELEASE-18.zip` | `759MB` | `44b6fa8d7795b56feda08ea7ab793a3e` | `cd56406d3539030ab9b9b3fbae08b56b352b9b53` |
-| `takserver-docker-4.7-RELEASE-20.zip` | `759MB` | `1cb0208c62d4551f1c3185d00a5fd8bf` | `f427ae3e860fddb8907047f157ada5764334c48d` |
 | `takserver-docker-4.8-RELEASE-31.zip` | `772MB` | `c07f01d74960287bfc7dc08ecd6cbc3a` | `387ea4f593763d3adcfda5128a89dda4fd82e937` |
 | `takserver-docker-4.10-RELEASE-50.zip`| `528MB` | `5068d5fd70cbc9ecf53f2259dc9383f7` | `177ed55a66ce8126424937dd3bc7375feb12d3eb` |
 | `takserver-docker-5.0-RELEASE-58.zip`| `660MB` | `2c80c289f67de4878ca596bf479ef698` | `944052011887101fd1019b3019f5c9583a1683f3` |
+| `takserver-docker-5.1-RELEASE-50.zip`| `615MB` | `c6d1485ae3f81bd30c35be836a001cd0` | `99467f0be91e682714e72c34196c6d8bf40c92d3` |
+| `takserver-docker-5.2-RELEASE-30.zip`| `517MB` | `b691d1d7377790690e1e5ec0e4a29a56` | `98f13f9140470ee65351e3d25dec097603bfb582` |
 
 ## Requirements
 

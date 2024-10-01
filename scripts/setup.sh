@@ -212,9 +212,11 @@ fi
 mv -f /tmp/takserver/$release/tak ./
 chown -R $USER:$USER tak
 
-cp ./scripts/configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
-cp ./postgresql1.conf ./tak/postgresql.conf
-cp ./scripts/takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
+# Not needed since they fixed the crappy configs in 5.x
+
+#cp ./scripts/configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
+#cp ./postgresql1.conf ./tak/postgresql.conf
+#cp ./scripts/takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
 
 # This config uses a docker alias of postgresql://tak-database:5432/
 cp ./CoreConfig.xml ./tak/CoreConfig.xml
@@ -244,10 +246,10 @@ sed -i "s/takserver.jks/$IP.jks/g" tak/CoreConfig.xml
 # By default TAK server allocates memory based upon the *total* on a machine. 
 # In the real world, people not on a gov budget use a server for more than one thing.
 # Instead we allocate a fixed amount of memory
-read -p "Enter the amount of memory to allocate, in kB. Default [8000000]: " mem
+read -p "Enter the amount of memory to allocate, in kB. Default 4000000 (4GB): " mem
 if [ -z "$mem" ];
 then
-	mem="8000000"
+	mem="4000000"
 fi
 
 sed -i "s%\`awk '/MemTotal/ {print \$2}' /proc/meminfo\`%$mem%g" tak/setenv.sh

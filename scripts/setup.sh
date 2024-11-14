@@ -39,7 +39,7 @@ netstat_check () {
 	
 	ports=(5432 8089 8443 8444 8446 9000 9001)
 	
-	for i in "${ports[@]};"
+	for i in ${ports[@]};
 	do
 		netstat -lant | grep -w $i
 		if [ $? -eq 0 ];

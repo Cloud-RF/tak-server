@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 color() {
     STARTCOLOR="\e[$2";

@@ -1,4 +1,3 @@
-FROM openjdk:17-jdk-bullseye
-RUN apt update && apt-get install -y emacs-nox net-tools netcat vim
-
+FROM eclipse-temurin:17
+RUN apt update && apt-get install -y emacs-nox net-tools
 ENTRYPOINT ["/bin/bash", "-c", "/opt/tak/configureInDocker.sh init &>> /opt/tak/logs/takserver.log"]

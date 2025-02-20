@@ -15,18 +15,18 @@ Please follow account registration process, and once completed go to the link ab
 
 The integrity of the release will be checked at setup against the MD5/SHA1 checksums in this repo. **THESE MUST MATCH**. If they do not match, **DO NOT** proceed unless you trust the release. 
 
+Old releases are a security risk as they contain known vulnerabilities. For more information, read the big red notices on tak.gov
+
 ![TAK release download](img/tak-server-download.jpg)
 
 ## TAK Server Release Checksums
 
 | Release Filename                      | Bytes       | MD5 Checksum                       | SHA1 Checksum                              |
 | ------------------------------------- | ----------- | ---------------------------------- | ------------------------------------------ |
-| `takserver-docker-4.8-RELEASE-31.zip` | `772MB` | `c07f01d74960287bfc7dc08ecd6cbc3a` | `387ea4f593763d3adcfda5128a89dda4fd82e937` |
-| `takserver-docker-4.10-RELEASE-50.zip`| `528MB` | `5068d5fd70cbc9ecf53f2259dc9383f7` | `177ed55a66ce8126424937dd3bc7375feb12d3eb` |
-| `takserver-docker-5.0-RELEASE-58.zip`| `660MB` | `2c80c289f67de4878ca596bf479ef698` | `944052011887101fd1019b3019f5c9583a1683f3` |
 | `takserver-docker-5.1-RELEASE-50.zip`| `615MB` | `c6d1485ae3f81bd30c35be836a001cd0` | `99467f0be91e682714e72c34196c6d8bf40c92d3` |
 | `takserver-docker-5.2-RELEASE-30.zip`| `517MB` | `b691d1d7377790690e1e5ec0e4a29a56` | `98f13f9140470ee65351e3d25dec097603bfb582` |
 | `takserver-docker-5.2-RELEASE-43.zip`| `517MB` | `0a7398383253707dd7564afc88f29b3b` | `824d7b89fbe6377cb5570f50bb35e6e05c12b230` |
+| `takserver-docker-5.3-RELEASE-24.zip`| `527MB` | `e8a5dc855c4eb67d170bf689017516e8` | `1eaad8c4471392a96c60f56bc2d54f9f3b6d719e` |
 
 ## Requirements
 

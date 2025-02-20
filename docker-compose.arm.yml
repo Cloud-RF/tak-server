@@ -1,5 +1,3 @@
-version: "3.3"
-   
 services:
   db:
     build:
@@ -12,8 +10,6 @@ services:
       tak:
         aliases:
           - tak-database
-    ports:
-      - 5432:5432
     restart: unless-stopped
   tak:
     build:

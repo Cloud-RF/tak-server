@@ -21,7 +21,7 @@ fi
 
 printf $success "\nTAK server setup script sponsored by CloudRF.com - \"The API for RF\"\n"
 printf $info "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
-# printf $warning "\nYou should install this as a user. Elevated privileges (sudo) are only required to clean up a previous install eg. sudo ./scripts/cleanup.sh\n"
+printf $warning "\nYou should install this as a user. Elevated privileges (sudo) are only required to clean up a previous install eg. sudo ./scripts/cleanup.sh\n"
 
 arch=$(dpkg --print-architecture)
 
@@ -212,12 +212,6 @@ fi
 mv -f /tmp/takserver/$release/tak ./
 chown -R $USER:$USER tak
 
-# Not needed since they fixed the crappy configs in 5.x
-
-#cp ./scripts/configureInDocker1.sh ./tak/db-utils/configureInDocker.sh
-#cp ./postgresql1.conf ./tak/postgresql.conf
-#cp ./scripts/takserver-setup-db-1.sh ./tak/db-utils/takserver-setup-db.sh
-
 # This config uses a docker alias of postgresql://tak-database:5432/
 cp ./CoreConfig.xml ./tak/CoreConfig.xml
 
@@ -246,7 +240,7 @@ sed -i "s/takserver.jks/$IP.jks/g" tak/CoreConfig.xml
 # By default TAK server allocates memory based upon the *total* on a machine. 
 # In the real world, people not on a gov budget use a server for more than one thing.
 # Instead we allocate a fixed amount of memory
-read -p "Enter the amount of memory to allocate, in kB. Default 4000000 (4GB): " mem
+#read -p "Enter the amount of memory to allocate, in kB. Default 4000000 (4GB): " mem
 if [ -z "$mem" ];
 then
 	mem="4000000"
@@ -254,31 +248,33 @@ fi
 
 sed -i "s%\`awk '/MemTotal/ {print \$2}' /proc/meminfo\`%$mem%g" tak/setenv.sh
 
+# Commented out since everyone just kept hitting enter x4. dumb=dumb
+
 ## Set variables for generating CA and client certs
-printf $warning "SSL setup. Hit enter (x4) to accept the defaults:\n"
-read -p "Country (for cert generation). Default [US] : " country
-read -p "State (for cert generation). Default [state] : " state
-read -p "City (for cert generation). Default [city]: " city
-read -p "Organizational Unit (for cert generation). Default [org]: " orgunit
+#printf $warning "SSL setup. Hit enter (x4) to accept the defaults:\n"
+#read -p "Country (for cert generation). Default [US] : " country
+#read -p "State (for cert generation). Default [state] : " state
+#read -p "City (for cert generation). Default [city]: " city
+#read -p "Organizational Unit (for cert generation). Default [org]: " orgunit
 
 if [ -z "$country" ];
 then
-	country="US"
+	country="GB"
 fi
 
 if [ -z "$state" ];
 then
-	state="state"
+	state="Warwickshire"
 fi
 
 if [ -z "$city" ];
 then
-	city="city"
+	city="Coventry" # British joke
 fi
 
 if [ -z "$orgunit" ];
 then
-	orgunit="org"
+	orgunit="TAK"
 fi
 
 # Update local env
@@ -297,7 +293,8 @@ ORGANIZATIONAL_UNIT=$orgunit
 EOF
 
 ### Update cert-metadata.sh with configured country. Fallback to US if variable not set.
-sed -i -e 's/COUNTRY=US/COUNTRY=${COUNTRY:-US}/' $PWD/tak/certs/cert-metadata.sh
+sed -i -e 's/COUNTRY=US/COUNTRY=${COUNTRY}/' $PWD/tak/certs/cert-metadata.sh
+
 
 ### Runs through setup, starts both containers
 $DOCKER_COMPOSE --file $DOCKERFILE up  --force-recreate -d
@@ -306,7 +303,7 @@ $DOCKER_COMPOSE --file $DOCKERFILE up  --force-recreate -d
 
 while :
 do
-	sleep 10 # let the PG stderr messages conclude...
+	sleep 5 # let the PG stderr messages conclude...
 	printf $warning "------------CERTIFICATE GENERATION--------------\n"
 	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeRootCa.sh --ca-name CRFtakserver"
 	if [ $? -eq 0 ];
@@ -318,11 +315,10 @@ do
 			if [ $? -eq 0 ];
 			then
 				# Set permissions so user can write to certs/files
-				$DOCKER_COMPOSE exec tak bash -c "useradd $USER && chown -R $USER:$USER /opt/tak/certs/"
-				$DOCKER_COMPOSE stop tak
+				# The ubuntu user has uid 1000 which should map to our host user id 1000. Type 'id' to find yours :)
+				$DOCKER_COMPOSE exec tak bash -c "chown -R 1000:1000 /opt/tak/certs/"
+				#$DOCKER_COMPOSE stop tak
 				break
-			else 
-				sleep 5
 			fi
 		else
 			sleep 5
@@ -333,24 +329,21 @@ done
 printf $info "Creating certificates for 2 users in tak/certs/files for a quick setup via TAK's import function\n"
 
 # Make 2 users
-cd tak/certs
-./makeCert.sh client user1
-./makeCert.sh client user2
+$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client user1"
+$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client user2"
+$DOCKER_COMPOSE exec tak bash -c "chown -R 1000:1000 /opt/tak/certs/"
 
-
-# Make 2 data packages
-cd ../../
 ./scripts/certDP.sh $IP user1
 ./scripts/certDP.sh $IP user2
 
-printf $info "Waiting for TAK server to go live. This should take <1m with an AMD64, ~2min on a ARM64 (Pi)\n"
-$DOCKER_COMPOSE start tak
-sleep 10
+printf $info "Waiting for TAK server to connect to DB. This should loop several times only...\n"
+#$DOCKER_COMPOSE start tak
+sleep 5
 
 ### Checks if java is fully initialised
 while :
 do
-	sleep 10
+	sleep 5
 	$DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/ && java -jar /opt/tak/utils/UserManager.jar usermod -A -p $password $user"
 	if [ $? -eq 0 ];
 	then
@@ -363,13 +356,13 @@ do
 
 				break
 			else
-				sleep 10
+				sleep 5
 			fi
 		else
-			sleep 10
+			sleep 5
 		fi
 	else
-		printf $info "No joy with DB at $IP, will retry in 10s. If this loops more than 6 times go and get some fresh air...\n" 
+		printf $info "No joy with DB at $IP, will retry in 5s. If this loops more than 10 times give up.\n" 
 	fi
 done
 
@@ -378,9 +371,9 @@ cp ./tak/certs/files/$user.p12 .
 ### Post-installation message to user including randomly generated passwrods to use for account and PostgreSQL
 docker container ls
 
-printf $warning "\n\nImport the $user.p12 certificate from this folder to your browser as per the README.md file\n"
+printf $warning "\n\nImport the $user.p12 certificate from this folder to your browser's certificate store as per the README.md file\n"
 printf $success "Login at https://$IP:8443 with your admin account. No need to run the /setup step as this has been done.\n" 
-printf $info "Certificates and *CERT DATA PACKAGES* are in tak/certs/files \n\n" 
+printf $info "Certificates and .zip data packages are in tak/certs/files \n\n" 
 printf $success "Setup script sponsored by CloudRF.com - \"The API for RF\"\n\n"
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $danger "Admin user name: $user\n" # Web interface default user name
@@ -388,5 +381,4 @@ printf $danger "Admin password: $password\n" # Web interface default random pass
 printf $danger "PostgreSQL password: $pgpassword\n\n" # PostgreSQL password randomly generated during set up
 printf $danger "---------PASSWORDS----------------\n\n"
 printf $warning "MAKE A NOTE OF YOUR PASSWORDS. THEY WON'T BE SHOWN AGAIN.\n"
-printf $warning "You have a database listening on TCP 5432 which requires a login. You should still block this port with a firewall\n"
 printf $info "Docker containers should automatically start with the Docker service from now on.\n"

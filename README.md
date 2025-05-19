@@ -23,10 +23,10 @@ Old releases are a security risk as they contain known vulnerabilities. For more
 
 | Release Filename                      | Bytes       | MD5 Checksum                       | SHA1 Checksum                              |
 | ------------------------------------- | ----------- | ---------------------------------- | ------------------------------------------ |
-| `takserver-docker-5.1-RELEASE-50.zip`| `615MB` | `c6d1485ae3f81bd30c35be836a001cd0` | `99467f0be91e682714e72c34196c6d8bf40c92d3` |
 | `takserver-docker-5.2-RELEASE-30.zip`| `517MB` | `b691d1d7377790690e1e5ec0e4a29a56` | `98f13f9140470ee65351e3d25dec097603bfb582` |
 | `takserver-docker-5.2-RELEASE-43.zip`| `517MB` | `0a7398383253707dd7564afc88f29b3b` | `824d7b89fbe6377cb5570f50bb35e6e05c12b230` |
 | `takserver-docker-5.3-RELEASE-24.zip`| `527MB` | `e8a5dc855c4eb67d170bf689017516e8` | `1eaad8c4471392a96c60f56bc2d54f9f3b6d719e` |
+| `takserver-docker-5.3-RELEASE-30.zip`| `527MB` | `b24b5ae01aeac151565aa35a39899785` | `37c3a8f3c7626326504ab8047c42a0473961be24` |
 
 ## Requirements
 

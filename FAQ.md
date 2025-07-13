@@ -50,23 +50,6 @@ Enable "Enable Certificate Enrollment" and then Submit.
 ## I can't import the certificate to my browser?
 Ensure the admin.p12 file is owned by you. Use the atakatak password when prompted and ensure you enable the TAK authority to "authenticate websites" in Firefox.
 
-## How can I change the logo at the footer of the web page
-
-The BBN logo can be changed **without** stopping or setting up the TAK Server again.
-
-*Since about 5.x this was removed but you can use this process to edit the HTML like Marti/menubar.html. See below*
-
-![meh](img/banana.png "A banana")
-
-The script takes one command line argument which is the full path to the **PNG** or **JPG** image of new logo. Sudo permission may not be needed depending on your docker permissions.
-
-```
-chmod +x scripts/logo-replacement.sh
-sudo ./scripts/logo-replacement.sh /home/eric/banana.jpg
-````
-
-The script will check for all dependencies required, and if not present, the script will attempt to install them for you. The dependencies needed are __*openJDK*__ (JAVA environment is required to be able to repack the jar correctly) and ImageMagick for conversion.
-
 ## Edit the HTML
 WARNING: You may break your server. Use at your own risk:
 ![meh](img/allyourtak.png "All your tak")
@@ -82,6 +65,13 @@ Once copied over, reload your interface and enjoy :)
 ## How can I upload a data package to Marti sync?
 This is uber-secret.
 A successful POST will return a JSON message containing a SHA256 hash. This hash is the unique filename on the server
+
+## Why was the license changed
+
+The GPL3.0 license was replaced with the more permissive MIT license in July 2025 since we learnt lawyers were making an unreasonable amount of amendments to Tak Server's GPL3.0 section 7 (Additional Terms) to further complicate the already complex licensing situtation. 
+
+We replaced the complex GPL3.0 license with a simple one which doesn't obligate users to do anything (or require input from a lawyer).
+
 
 ### Upload
 

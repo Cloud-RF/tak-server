@@ -27,6 +27,7 @@ Old releases are a security risk as they contain known vulnerabilities. For more
 | `takserver-docker-5.2-RELEASE-43.zip`| `517MB` | `0a7398383253707dd7564afc88f29b3b` | `824d7b89fbe6377cb5570f50bb35e6e05c12b230` |
 | `takserver-docker-5.3-RELEASE-24.zip`| `527MB` | `e8a5dc855c4eb67d170bf689017516e8` | `1eaad8c4471392a96c60f56bc2d54f9f3b6d719e` |
 | `takserver-docker-5.3-RELEASE-30.zip`| `527MB` | `b24b5ae01aeac151565aa35a39899785` | `37c3a8f3c7626326504ab8047c42a0473961be24` |
+| `takserver-docker-5.4-RELEASE-19.zip` | `522MB` | `9e6f3e3b61f8677b491d6ed15baf1813` | `2f3ced9b3e81c448e401b995f64566e7b888b991` |
 
 ## Requirements
 
@@ -243,16 +244,17 @@ This will add a server, certificates and a user account. You will still need to 
 
 ## Federated TAK server
 
-If you would like to federate TAK servers you will need to exchange ca.pem files between servers. On this docker setup, I find that I have to manually import the ca.pem from the command line as the webui seems unable to add 
-the it to the fed truststore. Typically the fed-truststore is located in the project directory at tak-server/tak/certs/files. You'll likely find the ca.pem in that location as well, location may vary depending on install method.
+If you would like to federate TAK servers you will need to exchange ca.pem files between servers to the fed-truststore.jks file located within tak/certs/files
 
 ```bash
-keytool -importcert -file ca.pem -keystore fed-truststore.jks -alias "tak"
+keytool -importcert -file ca.pem -keystore tak-server/tak/certs/files/fed-truststore.jks -alias "tak"
 ```
 
-### Transferring Your ZIP files Via HTTP
+### Transferring user certificates via HTTP
 
-If you like to live dangerously, you can run a script to serve the `.zip` files on TCP port `12345`, for example, http://0.0.0.0:12345. This launches a mini Python web server and serves the content of the `share` folder which will contain your certificates. Note that sharing certificates via insecure protocols is not secure. 
+You can run a script to serve the `.zip` files on TCP port `12345`, for example, http://0.0.0.0:12345. This launches a mini Python web server and serves the content of the `share` folder which will contain your certificates. Only do this on a trusted network as it is not encrypted.
+
+**Sharing certificates via insecure protocols is not recommended best practice. For a secure method, copy it to the SD card with a USB cable**
 
 ```console
 ./scripts/shareCerts.sh
@@ -261,7 +263,7 @@ Serving HTTP on 0.0.0.0 port 12345 (http://0.0.0.0:12345/) ...
 10.0.0.5 - - [23/Nov/2022 15:49:54] "GET /user1-10.0.0.3.dp.zip HTTP/1.1" 200 
 ```
 
-Stop the script with `Ctrl-C` once done to stop randoms fetching your certificates.
+Stop the script with `Ctrl-C` once transferred to close the server.
 
 # FAQ
 

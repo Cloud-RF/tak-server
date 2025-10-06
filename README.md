@@ -28,6 +28,8 @@ Old releases are a security risk as they contain known vulnerabilities. For more
 | `takserver-docker-5.3-RELEASE-24.zip`| `527MB` | `e8a5dc855c4eb67d170bf689017516e8` | `1eaad8c4471392a96c60f56bc2d54f9f3b6d719e` |
 | `takserver-docker-5.3-RELEASE-30.zip`| `527MB` | `b24b5ae01aeac151565aa35a39899785` | `37c3a8f3c7626326504ab8047c42a0473961be24` |
 | `takserver-docker-5.4-RELEASE-19.zip` | `522MB` | `9e6f3e3b61f8677b491d6ed15baf1813` | `2f3ced9b3e81c448e401b995f64566e7b888b991` |
+| `takserver-docker-5.4-RELEASE-106.zip` | `522MB` | `edce00ff13f8fdfb340e7e05eafc5454` | `7f7da1a58544b34e01576b99f8db59e1987cd96c` |
+| `takserver-docker-5.5-RELEASE-58.zip` | `531MB` | `6d362f234305b9a5e8f9245ef8f3e45d` | `7f0c07aa0ad7ff575c0278d734264e3e446ec93c` |
 
 ## Requirements
 
@@ -115,12 +117,12 @@ For more information on using TAK server refer to [the documentation on the TAK 
 ### NIC selection
 The interactive network interface prompt requires you to select your interface. Ensure this is the interface on which you want clients to access the service. For a wired network it's likely en* or eth*.
 
-  Choose your TAK SERVER network interface wisely...
-  1) enp5s0
-  2) virbr0
-  3) virbr0-nic
-  4) docker0
-  5) br-b60854e61cd0
+    Choose your TAK SERVER network interface wisely...
+    1) enp5s0
+    2) virbr0
+    3) virbr0-nic
+    4) docker0
+    5) br-b60854e61cd0
 
 ### Network Ports
 

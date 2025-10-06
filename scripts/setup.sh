@@ -224,9 +224,20 @@ password=$pwd"Meh1!"
 pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | head -n 1)"
 pgpassword=$pgpwd"Meh1!"
 
-# get IP
-NIC=$(route | grep default | awk '{print $8}' | head -n 1)
-IP=$(ip addr show $NIC | grep -m 1 "inet " | awk '{print $2}' | cut -d "/" -f1)
+# Interactive NIC selection by C-onethirtyseven
+interfaces=$(ip link show | awk -F': ' '{print $2}' | grep -v '^lo')
+printf $danger "Choose your TAK SERVER network interface wisely...\n"
+select eth_interface in $interfaces; do
+if [ -n "$eth_interface" ]; then
+printf $success "You chose $eth_interface"
+break
+else
+printf $danger "Not the cup of the carpenter. Choose wiser."
+fi
+done
+
+#NIC=$(route | grep default | awk '{print $8}' | head -n 1)
+IP=$(ip addr show $eth_interface | grep -m 1 "inet " | awk '{print $2}' | cut -d "/" -f1)
 
 printf $info "\nProceeding with IP address: $IP\n"
 sed -i "s/password=\".*\"/password=\"${pgpassword}\"/" tak/CoreConfig.xml

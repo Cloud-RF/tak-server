@@ -112,6 +112,16 @@ The `setup.sh` script will populate configuration files, start up TAK server wit
 
 For more information on using TAK server refer to [the documentation on the TAK Product Center GitHub](https://github.com/TAK-Product-Center/Server/tree/main/src/docs).
 
+### NIC selection
+The interactive network interface prompt requires you to select your interface. Ensure this is the interface on which you want clients to access the service. For a wired network it's likely en* or eth*.
+
+  Choose your TAK SERVER network interface wisely...
+  1) enp5s0
+  2) virbr0
+  3) virbr0-nic
+  4) docker0
+  5) br-b60854e61cd0
+
 ### Network Ports
 
 TAK server needs the following port numbers to operate. Services already using these will cause a problem which the script will detect and offer a resolution for.

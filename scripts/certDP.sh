@@ -1,9 +1,9 @@
 #!/bin/bash
+
 # Makes an ATAK / iTAK friendly data package containing CA, user cert, user key
-if [ $# -eq 0 ]
-  then
-    echo "No arguments supplied. Need an IP and a user eg. ./certDP.sh 192.168.0.2 user1"
-    exit
+if [ $# -lt 2 ] ; then
+    echo "Usage: $0 <IP> <USER>"
+    exit 1
 fi
 
 IP=$1
@@ -21,10 +21,10 @@ echo "    <entry key=\"connectString0\" class=\"class java.lang.String\">$IP:808
 echo "  </preference>" >> server.pref
 echo "  <preference version=\"1\" name=\"com.atakmap.app_preferences\">" >> server.pref
 echo "    <entry key=\"displayServerConnectionWidget\" class=\"class java.lang.Boolean\">true</entry>" >> server.pref
-echo "    <entry key=\"caLocation\" class=\"class java.lang.String\">cert/$IP.p12</entry>" >> server.pref
+echo "    <entry key=\"caLocation\" class=\"class java.lang.String\">certs/$IP.p12</entry>" >> server.pref
 echo "    <entry key=\"caPassword\" class=\"class java.lang.String\">atakatak</entry>" >> server.pref
 echo "    <entry key=\"clientPassword\" class=\"class java.lang.String\">atakatak</entry>" >> server.pref
-echo "    <entry key=\"certificateLocation\" class=\"class java.lang.String\">cert/$USER.p12</entry>" >> server.pref
+echo "    <entry key=\"certificateLocation\" class=\"class java.lang.String\">certs/$USER.p12</entry>" >> server.pref
 echo "  </preference>" >> server.pref
 echo "</preferences>" >> server.pref
 
@@ -44,6 +44,11 @@ echo "    <Content ignore=\"false\" zipEntry=\"certs\\$USER.p12\"/>" >> manifest
 echo "  </Contents>" >> manifest.xml
 echo "</MissionPackageManifest>" >> manifest.xml
 
-zip -j tak/certs/files/$USER-$IP.dp.zip manifest.xml server.pref tak/certs/files/$IP.p12 tak/certs/files/$USER.p12
+mkdir -p certs
+mv server.pref certs/
+cp tak/certs/files/$IP.p12 certs/
+cp tak/certs/files/$USER.p12 certs/
+zip -r tak/certs/files/$USER-$IP.dp.zip manifest.xml certs
+rm -rf certs server.pref manifest.xml
 echo "-------------------------------------------------------------"
 echo "Created certificate data package for $USER @ $IP as tak/certs/files/$USER-$IP.dp.zip"

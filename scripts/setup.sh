@@ -18,6 +18,12 @@ then
 	echo "Docker compose command set to new style $DOCKER_COMPOSE"
 fi
 
+# Docker test
+if ! docker ps &>/dev/null; then
+	echo "Error: current user '$(whoami)' cannot run docker commands, this script WILL fail."
+	echo "Instructions on how to add this user to docker group: https://docs.docker.com/engine/install/linux-postinstall/"
+	exit 1
+fi
 
 printf $success "\nTAK server setup script sponsored by CloudRF.com - \"The API for RF\"\n"
 printf $info "\nStep 1. Download the official docker image as a zip file from https://tak.gov/products/tak-server \nStep 2. Place the zip file in this tak-server folder.\n"
@@ -26,6 +32,10 @@ printf $warning "\nYou should install this as a user. Elevated privileges (sudo)
 arch=$(dpkg --print-architecture)
 
 DOCKERFILE=docker-compose.yml
+
+# This allows you to set the UID/GID, currently sets to current users
+UID=$(id -u)
+GID=$(id -g)
 
 if [ $arch == "arm64" ];
 then
@@ -217,11 +227,11 @@ cp ./CoreConfig.xml ./tak/CoreConfig.xml
 
 ## Set admin username and password and ensure it meets validation criteria
 user="admin"
-pwd=$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | head -n 1)
+pwd="$(LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 125)"
 password=$pwd"Meh1!"
 
 ## Set postgres password and ensure it meets validation criteria
-pgpwd="$(cat /dev/urandom | tr -dc '[:alpha:][:digit:]' | fold -w ${1:-11} | head -n 1)"
+pgpwd="$(LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 125)"
 pgpassword=$pgpwd"Meh1!"
 
 # Interactive NIC selection by C-onethirtyseven
@@ -327,7 +337,7 @@ do
 			then
 				# Set permissions so user can write to certs/files
 				# The ubuntu user has uid 1000 which should map to our host user id 1000. Type 'id' to find yours :)
-				$DOCKER_COMPOSE exec tak bash -c "chown -R 1000:1000 /opt/tak/certs/"
+				$DOCKER_COMPOSE exec tak bash -c "chown -R $UID:$GID /opt/tak/certs/"
 				#$DOCKER_COMPOSE stop tak
 				break
 			fi
@@ -342,7 +352,7 @@ printf $info "Creating certificates for 2 users in tak/certs/files for a quick s
 # Make 2 users
 $DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client user1"
 $DOCKER_COMPOSE exec tak bash -c "cd /opt/tak/certs && ./makeCert.sh client user2"
-$DOCKER_COMPOSE exec tak bash -c "chown -R 1000:1000 /opt/tak/certs/"
+$DOCKER_COMPOSE exec tak bash -c "chown -R $UID:$GID /opt/tak/certs/"
 
 ./scripts/certDP.sh $IP user1
 ./scripts/certDP.sh $IP user2
